@@ -1,0 +1,3656 @@
+<!DOCTYPE html><html lang="pt-BR"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sonic 2 - 13 Fases & 3 Chefes</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: #111;
+            color: #fff;
+            font-family: 'Courier New', Courier, monospace;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+            padding: 8px;
+        }
+
+        #game-container {
+            position: relative;
+            box-shadow: 0 0 30px rgba(0, 150, 255, 0.4);
+            border: 4px solid #fff;
+            width: 100%;
+            max-width: 800px;
+        }
+
+        canvas {
+            display: block;
+            background-color: #2080f0;
+            width: 100%;
+            height: auto;
+            touch-action: none; /* impede scroll/zoom do navegador ao tocar no jogo */
+        }
+
+        #hud {
+            position: absolute;
+            top: 15px;
+            left: 20px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #ffeb3b;
+            text-shadow: 2px 2px #000, -2px -2px #000, 2px -2px #000, -2px 2px #000;
+            line-height: 1.4;
+            user-select: none;
+            pointer-events: none;
+        }
+
+        #controls-hint {
+            margin-top: 10px;
+            font-size: 13px;
+            color: #aaa;
+            text-align: center;
+        }
+
+        #pause-hint {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 13px;
+            color: #ccc;
+            text-shadow: 1px 1px #000;
+            user-select: none;
+            pointer-events: none;
+        }
+
+        #menu-btn {
+            position: absolute;
+            top: 40px;
+            right: 20px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 12px;
+            font-weight: bold;
+            color: #fff;
+            background: #d32f2f;
+            border: 2px solid #fff;
+            border-radius: 4px;
+            padding: 6px 10px;
+            cursor: pointer;
+            box-shadow: 2px 2px 0 rgba(0,0,0,0.5);
+            display: none;
+            user-select: none;
+        }
+
+        #menu-btn:hover {
+            background: #ff5252;
+        }
+
+        #menu-btn:active {
+            transform: translate(1px, 1px);
+            box-shadow: 1px 1px 0 rgba(0,0,0,0.5);
+        }
+
+        /* ===================== TELA DE LOGIN / CADASTRO (Supabase) ===================== */
+        #auth-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg, #2080f0 0%, #000814 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 20;
+            text-align: center;
+            padding: 20px;
+        }
+        #auth-overlay.hidden { display: none; }
+        #auth-overlay h1 {
+            color: #ffeb3b;
+            font-size: 34px;
+            margin-bottom: 6px;
+            text-shadow: 2px 2px #000;
+        }
+        #auth-overlay p.subtitle {
+            color: #00ffcc;
+            font-size: 13px;
+            margin-bottom: 20px;
+        }
+        #auth-form {
+            background: rgba(0,0,0,0.4);
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 6px;
+            padding: 20px;
+            width: 260px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        #auth-form input {
+            font-family: 'Courier New', Courier, monospace;
+            padding: 8px;
+            border-radius: 4px;
+            border: 2px solid #555;
+            background: #111;
+            color: #fff;
+            font-size: 14px;
+        }
+        #auth-form button {
+            font-family: 'Courier New', Courier, monospace;
+            font-weight: bold;
+            padding: 9px;
+            border-radius: 4px;
+            border: 2px solid #fff;
+            cursor: pointer;
+            font-size: 13px;
+        }
+        #auth-login-btn { background: #2e7d32; color: #fff; }
+        #auth-login-btn:hover { background: #388e3c; }
+        #auth-signup-btn { background: #1565c0; color: #fff; }
+        #auth-signup-btn:hover { background: #1976d2; }
+        #auth-guest-btn { background: #555; color: #fff; margin-top: 4px; }
+        #auth-guest-btn:hover { background: #666; }
+        #auth-message {
+            min-height: 18px;
+            font-size: 12px;
+            color: #ff5252;
+        }
+        #auth-message.ok { color: #00e676; }
+        #auth-loading { color: #fff; font-size: 13px; }
+        #account-badge {
+            position: absolute;
+            bottom: 10px;
+            left: 20px;
+            font-size: 11px;
+            color: #aaa;
+            text-shadow: 1px 1px #000;
+            user-select: none;
+            z-index: 5;
+        }
+        #account-badge button {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 10px;
+            margin-left: 8px;
+            background: #444;
+            color: #fff;
+            border: 1px solid #888;
+            border-radius: 3px;
+            padding: 2px 6px;
+            cursor: pointer;
+        }
+
+        /* ===================== CHAT PRIVADO ===================== */
+        #chat-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 8, 20, 0.96);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            z-index: 25;
+            padding: 20px;
+        }
+        #chat-overlay.visible { display: flex; }
+        #chat-overlay h2 {
+            color: #ffeb3b;
+            font-size: 20px;
+            margin-bottom: 10px;
+            text-shadow: 1px 1px #000;
+        }
+        #chat-search-row {
+            display: flex;
+            gap: 8px;
+            width: 320px;
+            margin-bottom: 8px;
+        }
+        #chat-search-row input {
+            flex: 1;
+            font-family: 'Courier New', Courier, monospace;
+            padding: 7px;
+            border-radius: 4px;
+            border: 2px solid #555;
+            background: #111;
+            color: #fff;
+            font-size: 13px;
+        }
+        #chat-search-row button, #chat-close-btn, #chat-send-btn {
+            font-family: 'Courier New', Courier, monospace;
+            font-weight: bold;
+            padding: 7px 12px;
+            border-radius: 4px;
+            border: 2px solid #fff;
+            cursor: pointer;
+            background: #1565c0;
+            color: #fff;
+            font-size: 12px;
+        }
+        #chat-close-btn { background: #555; margin-top: 10px; }
+        #chat-message-input-row {
+            display: flex;
+            gap: 8px;
+            width: 320px;
+            margin-top: 8px;
+        }
+        #chat-message-input-row input {
+            flex: 1;
+            font-family: 'Courier New', Courier, monospace;
+            padding: 7px;
+            border-radius: 4px;
+            border: 2px solid #555;
+            background: #111;
+            color: #fff;
+            font-size: 13px;
+        }
+        #chat-status {
+            min-height: 16px;
+            font-size: 11px;
+            color: #ff5252;
+            margin-bottom: 6px;
+        }
+        #chat-status.ok { color: #00e676; }
+        #chat-window {
+            width: 320px;
+            height: 260px;
+            background: rgba(255,255,255,0.05);
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 4px;
+            padding: 8px;
+            overflow-y: auto;
+            display: none;
+            flex-direction: column;
+            gap: 6px;
+            font-size: 12px;
+        }
+        #chat-window.visible { display: flex; }
+        .chat-bubble {
+            max-width: 80%;
+            padding: 6px 9px;
+            border-radius: 8px;
+            word-wrap: break-word;
+        }
+        .chat-bubble.mine {
+            align-self: flex-end;
+            background: #1565c0;
+            color: #fff;
+        }
+        .chat-bubble.theirs {
+            align-self: flex-start;
+            background: #444;
+            color: #fff;
+        }
+        #chat-menu-btn {
+            position: absolute;
+            top: 40px;
+            left: 20px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 12px;
+            font-weight: bold;
+            color: #fff;
+            background: #1565c0;
+            border: 2px solid #fff;
+            border-radius: 4px;
+            padding: 6px 10px;
+            cursor: pointer;
+            z-index: 6;
+        }
+
+        /* ===================== CONTROLES TOUCH (CELULAR) ===================== */
+        /* Só aparecem em dispositivos com toque (classe adicionada via JS).
+           Ficam sobrepostos ao jogo, com opacidade baixa para não atrapalhar a
+           visão, e não bloqueiam cliques em outras áreas (pointer-events só
+           nos próprios botões). */
+        #touch-controls {
+            position: absolute;
+            inset: 0;
+            z-index: 15;
+            pointer-events: none;
+            display: none;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        body.touch-device #touch-controls {
+            display: block;
+        }
+
+        .touch-btn {
+            position: absolute;
+            pointer-events: auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.18);
+            border: 2px solid rgba(255, 255, 255, 0.55);
+            border-radius: 50%;
+            color: #fff;
+            font-family: 'Courier New', Courier, monospace;
+            font-weight: bold;
+            font-size: 20px;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: none;
+        }
+        .touch-btn.active {
+            background: rgba(255, 255, 255, 0.4);
+        }
+
+        #touch-dpad {
+            position: absolute;
+            left: 4%;
+            bottom: 6%;
+            width: 34%;
+            max-width: 170px;
+            aspect-ratio: 1;
+            pointer-events: auto;
+        }
+        #touch-left  { left: 0;   top: 33%;  width: 34%; height: 34%; border-radius: 8px; }
+        #touch-right { right: 0;  top: 33%;  width: 34%; height: 34%; border-radius: 8px; }
+        #touch-down  { left: 33%; bottom: 0; width: 34%; height: 34%; border-radius: 8px; }
+
+        #touch-actions {
+            position: absolute;
+            right: 4%;
+            bottom: 6%;
+            width: 40%;
+            max-width: 200px;
+            height: 90px;
+        }
+        #touch-jump {
+            position: absolute;
+            right: 0;
+            bottom: 10%;
+            width: 68px;
+            height: 68px;
+            font-size: 13px;
+        }
+        #touch-pause {
+            position: absolute;
+            top: 6%;
+            right: 4%;
+            width: 40px;
+            height: 40px;
+            font-size: 14px;
+        }
+    </style>
+    <!-- SDK do Supabase (autenticação + banco de dados na nuvem) -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+</head><body>
+
+    <div id="game-container">
+        <!-- HUD ESTILO SONIC 2 -->
+        <div id="hud">
+            <span id="hud-character" style="color: #fff;">SONIC</span><br>
+            ZONE <span id="hud-zone" style="color: #00ffcc;">1 / 13</span><br>
+            SCORE <span id="hud-score" style="color: #fff;">0</span><br>
+            TIME  <span id="hud-time" style="color: #fff;">0:00</span><br>
+            RINGS <span id="hud-rings" style="color: #fff;">0</span><br>
+            LIVES <span id="hud-lives" style="color: #ff6666;">3</span>
+        </div>
+        <div id="pause-hint">[P] Pausar</div>
+        <button id="menu-btn" onclick="goToMenu()">⏮ MENU</button>
+        <button id="chat-menu-btn" style="display:none;">💬 CHAT</button>
+        <div id="account-badge"></div>
+
+        <canvas id="gameCanvas" width="800" height="450"></canvas>
+
+        <!-- Controles touch (só aparecem em dispositivos com toque, via classe no body) -->
+        <div id="touch-controls">
+            <div id="touch-dpad">
+                <div class="touch-btn" id="touch-left">◀</div>
+                <div class="touch-btn" id="touch-right">▶</div>
+                <div class="touch-btn" id="touch-down">▼</div>
+            </div>
+            <div id="touch-actions">
+                <div class="touch-btn" id="touch-jump">PULAR</div>
+            </div>
+            <div class="touch-btn" id="touch-pause">II</div>
+        </div>
+
+        <!-- Tela de login/cadastro — cobre o jogo até o jogador entrar na conta -->
+        <div id="auth-overlay">
+            <h1>SONIC</h1>
+            <p class="subtitle">Entre com sua conta para salvar seu progresso na nuvem</p>
+            <div id="auth-form">
+                <input id="auth-email" type="email" placeholder="Email" autocomplete="email">
+                <input id="auth-password" type="password" placeholder="Senha (mín. 6 caracteres)" autocomplete="current-password">
+                <input id="auth-username" type="text" placeholder="Nome de usuário (só p/ criar conta)" autocomplete="off" maxlength="20">
+                <div id="auth-message"></div>
+                <div id="auth-loading" style="display:none;">Conectando...</div>
+                <button id="auth-login-btn">ENTRAR</button>
+                <button id="auth-signup-btn">CRIAR CONTA</button>
+                <button id="auth-guest-btn">Jogar sem conta (não salva)</button>
+            </div>
+        </div>
+
+        <!-- Chat privado — só acessível a partir do menu, com jogador logado -->
+        <div id="chat-overlay">
+            <h2>💬 BATE-PAPO PRIVADO</h2>
+            <div id="chat-search-row">
+                <input id="chat-username-input" type="text" placeholder="Nome de usuário do jogador" maxlength="20">
+                <button id="chat-search-btn">Abrir</button>
+            </div>
+            <div id="chat-status"></div>
+            <div id="chat-window"></div>
+            <div id="chat-message-input-row" style="display:none;">
+                <input id="chat-message-input" type="text" placeholder="Escreva uma mensagem..." maxlength="500">
+                <button id="chat-send-btn">Enviar</button>
+            </div>
+            <button id="chat-close-btn">FECHAR</button>
+        </div>
+    </div>
+
+    <div id="controls-hint">
+        Mover: [A/D] ou [SETAS] | Pular: [ESPAÇO/W] | Spin Dash: Segure [BAIXO] + [ESPAÇO] e Solte [BAIXO] | [P] Pausa | [M] Música
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        /* =====================================================================
+           SUPABASE — CONTAS DE JOGADOR E SALVAMENTO NA NUVEM
+           =====================================================================
+           1. Crie um projeto em https://supabase.com
+           2. Project Settings > API: copie a "Project URL" e a chave "anon public"
+           3. Cole as duas abaixo. É seguro expor a chave "anon" no navegador —
+              ela só permite o que as políticas de segurança (RLS) autorizam,
+              e cada jogador só acessa a própria linha na tabela player_data.
+           4. Rode o SQL de criação da tabela "player_data" (fornecido à parte)
+              no SQL Editor do Supabase antes de usar isto.
+           ===================================================================== */
+        const SUPABASE_URL = "https://bpeeqqkwwvrdqqlgdtha.supabase.co"; // Project URL do usuário
+        const SUPABASE_ANON_KEY = "sb_publishable_7PFCeWzeptUrqg034jzErQ_N7r8ynkc"; // Publishable key do usuário
+
+        // Se o SDK do Supabase não carregar (offline, bloqueio de CDN, teste local
+        // via file://, etc.), o jogo NÃO deve travar — só desativa o salvamento
+        // na nuvem e segue em modo convidado.
+        let supabaseReady = SUPABASE_URL.startsWith("http") && SUPABASE_ANON_KEY.length > 20;
+        let supabaseClient = null;
+        if (supabaseReady) {
+            try {
+                if (typeof window.supabase === "undefined") throw new Error("SDK do Supabase não carregou (offline ou CDN bloqueado)");
+                supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            } catch (e) {
+                console.error("Supabase indisponível, seguindo em modo convidado:", e);
+                supabaseReady = false;
+                supabaseClient = null;
+            }
+        }
+
+        let currentUser = null;      // objeto do usuário logado (ou null = convidado)
+        let myUsername = null;       // nome de usuário (apelido) do jogador logado, usado no chat
+        let pendingUsername = null;  // guarda o username digitado no cadastro até a conta ser criada
+        let playerDataLoaded = false; // evita salvar antes de carregar (sobrescrever com valores default)
+        let saveDebounceTimer = null;
+
+        function authSetMessage(text, ok) {
+            const el = document.getElementById('auth-message');
+            el.textContent = text;
+            el.className = ok ? "ok" : "";
+        }
+
+        function authSetLoading(isLoading) {
+            document.getElementById('auth-loading').style.display = isLoading ? "block" : "none";
+            document.getElementById('auth-login-btn').disabled = isLoading;
+            document.getElementById('auth-signup-btn').disabled = isLoading;
+        }
+
+        function hideAuthOverlay() {
+            document.getElementById('auth-overlay').classList.add('hidden');
+        }
+        function showAuthOverlay() {
+            document.getElementById('auth-overlay').classList.remove('hidden');
+        }
+
+        function updateAccountBadge() {
+            const badge = document.getElementById('account-badge');
+            if (!supabaseReady) {
+                badge.innerHTML = "";
+                return;
+            }
+            if (currentUser) {
+                badge.innerHTML = `👤 ${currentUser.email} <button id="logout-btn">Sair</button>`;
+                document.getElementById('logout-btn').onclick = doLogout;
+            } else {
+                badge.innerHTML = "🕹️ Modo convidado (progresso não é salvo)";
+            }
+        }
+
+        // Carrega coins/itens/progresso salvos do jogador logado
+        async function loadPlayerData(userId) {
+            const { data, error } = await supabaseClient
+                .from('player_data')
+                .select('*')
+                .eq('user_id', userId)
+                .maybeSingle();
+
+            if (error) {
+                console.error("Erro ao carregar progresso:", error);
+                playerDataLoaded = true;
+                return;
+            }
+
+            if (data) {
+                coins = data.coins || 0;
+                myUsername = data.username || null;
+                if (Array.isArray(data.owned_items)) {
+                    SHOP_ITEMS.forEach(item => {
+                        item.owned = data.owned_items.includes(item.id);
+                    });
+                }
+            } else {
+                // Primeira vez desse usuário: cria a linha inicial dele
+                const { error: insertError } = await supabaseClient.from('player_data').insert({
+                    user_id: userId,
+                    coins: 0,
+                    owned_items: [],
+                    best_zone: 0,
+                    best_score: 0,
+                    username: pendingUsername || null
+                });
+                if (insertError && insertError.code === '23505') {
+                    // Nome de usuário já existe — cria sem username por enquanto e avisa
+                    await supabaseClient.from('player_data').insert({
+                        user_id: userId, coins: 0, owned_items: [], best_zone: 0, best_score: 0
+                    });
+                    myUsername = null;
+                    authSetMessage("Esse nome de usuário já existe. Defina outro no chat.", false);
+                } else {
+                    myUsername = pendingUsername || null;
+                }
+            }
+            playerDataLoaded = true;
+        }
+
+        // Salva coins/itens/progresso do jogador logado (usado após comprar item,
+        // terminar uma partida, etc.) — silencioso, com pequeno debounce.
+        function savePlayerData() {
+            if (!supabaseReady || !currentUser || !playerDataLoaded) return;
+            if (saveDebounceTimer) clearTimeout(saveDebounceTimer);
+            saveDebounceTimer = setTimeout(async () => {
+                const ownedIds = SHOP_ITEMS.filter(i => i.owned).map(i => i.id);
+                const bestZone = Math.max(currentLevelIndex, window.__bestZoneSoFar || 0);
+                window.__bestZoneSoFar = bestZone;
+                const { error } = await supabaseClient
+                    .from('player_data')
+                    .update({
+                        coins: coins,
+                        owned_items: ownedIds,
+                        best_zone: bestZone,
+                        best_score: Math.max(score, window.__bestScoreSoFar || 0),
+                        updated_at: new Date().toISOString()
+                    })
+                    .eq('user_id', currentUser.id);
+                if (error) console.error("Erro ao salvar progresso:", error);
+            }, 400);
+        }
+
+        async function doLogin() {
+            const email = document.getElementById('auth-email').value.trim();
+            const password = document.getElementById('auth-password').value;
+            if (!email || !password) { authSetMessage("Preencha email e senha.", false); return; }
+
+            authSetLoading(true);
+            const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+            authSetLoading(false);
+
+            if (error) {
+                authSetMessage(error.message, false);
+                return;
+            }
+            currentUser = data.user;
+            authSetMessage("Login realizado!", true);
+            await loadPlayerData(currentUser.id);
+            updateAccountBadge();
+            hideAuthOverlay();
+        }
+
+        async function doSignup() {
+            const email = document.getElementById('auth-email').value.trim();
+            const password = document.getElementById('auth-password').value;
+            const username = document.getElementById('auth-username').value.trim();
+            if (!email || !password) { authSetMessage("Preencha email e senha.", false); return; }
+            if (password.length < 6) { authSetMessage("A senha precisa ter 6+ caracteres.", false); return; }
+            if (!username) { authSetMessage("Escolha um nome de usuário (para o chat).", false); return; }
+            if (!/^[a-zA-Z0-9_]{3,20}$/.test(username)) {
+                authSetMessage("Nome de usuário: 3-20 caracteres, só letras/números/_.", false);
+                return;
+            }
+
+            authSetLoading(true);
+            pendingUsername = username;
+            const { data, error } = await supabaseClient.auth.signUp({ email, password });
+            authSetLoading(false);
+
+            if (error) {
+                authSetMessage(error.message, false);
+                return;
+            }
+
+            if (data.session) {
+                // Confirmação de email desativada no projeto: já entra logado
+                currentUser = data.user;
+                await loadPlayerData(currentUser.id);
+                updateAccountBadge();
+                hideAuthOverlay();
+            } else {
+                authSetMessage("Conta criada! Verifique seu email para confirmar.", true);
+            }
+        }
+
+        async function doLogout() {
+            if (supabaseClient) await supabaseClient.auth.signOut();
+            currentUser = null;
+            playerDataLoaded = false;
+            updateAccountBadge();
+            showAuthOverlay();
+            authSetMessage("", true);
+        }
+
+        function playAsGuest() {
+            currentUser = null;
+            playerDataLoaded = false; // convidado nunca salva
+            updateAccountBadge();
+            hideAuthOverlay();
+        }
+
+        // Liga os botões da tela de login assim que a página carrega
+        window.addEventListener('DOMContentLoaded', () => {
+            if (!supabaseReady) {
+                // SUPABASE_URL/ANON_KEY não configuradas ainda: pula direto para
+                // o modo convidado, sem travar o jogo.
+                authSetMessage("Supabase não configurado — jogando como convidado.", false);
+                playAsGuest();
+                return;
+            }
+            document.getElementById('auth-login-btn').addEventListener('click', doLogin);
+            document.getElementById('auth-signup-btn').addEventListener('click', doSignup);
+            document.getElementById('auth-guest-btn').addEventListener('click', playAsGuest);
+            document.getElementById('chat-menu-btn').addEventListener('click', openChat);
+            document.getElementById('chat-search-btn').addEventListener('click', chatOpenConversationWith);
+            document.getElementById('chat-close-btn').addEventListener('click', closeChat);
+            document.getElementById('chat-send-btn').addEventListener('click', chatSendMessage);
+            document.getElementById('chat-message-input').addEventListener('keydown', (e) => {
+                if (e.key === "Enter") chatSendMessage();
+            });
+            document.getElementById('chat-username-input').addEventListener('keydown', (e) => {
+                if (e.key === "Enter") chatOpenConversationWith();
+            });
+
+            // Se já existir uma sessão válida (o jogador não fechou o navegador
+            // desde o último login), entra automaticamente sem pedir de novo.
+            supabaseClient.auth.getSession().then(async ({ data }) => {
+                if (data.session) {
+                    currentUser = data.session.user;
+                    await loadPlayerData(currentUser.id);
+                    updateAccountBadge();
+                    hideAuthOverlay();
+                }
+            });
+        });
+        /* ================== FIM DO BLOCO SUPABASE ================== */
+
+        /* =====================================================================
+           CHAT PRIVADO — só disponível no menu, exige jogador logado.
+           Você abre a conversa digitando o NOME DE USUÁRIO de alguém; as
+           mensagens usam Supabase Realtime para chegar na hora, sem recarregar.
+           ===================================================================== */
+        let chatOtherUser = null;   // { user_id, username } da pessoa com quem está conversando
+        let chatChannel = null;     // canal Realtime assinado para a conversa atual
+        let chatMessages = [];      // mensagens já carregadas da conversa atual
+
+        function chatSetStatus(text, ok) {
+            const el = document.getElementById('chat-status');
+            el.textContent = text;
+            el.className = ok ? "ok" : "";
+        }
+
+        function openChat() {
+            if (!currentUser) {
+                chatSetStatus("Você precisa estar logado para usar o chat.", false);
+            }
+            document.getElementById('chat-overlay').classList.add('visible');
+        }
+
+        function closeChat() {
+            document.getElementById('chat-overlay').classList.remove('visible');
+            if (chatChannel) {
+                supabaseClient.removeChannel(chatChannel);
+                chatChannel = null;
+            }
+        }
+
+        // Busca o jogador pelo nome de usuário digitado e abre (ou cria) a conversa
+        async function chatOpenConversationWith() {
+            if (!currentUser) { chatSetStatus("Você precisa estar logado para usar o chat.", false); return; }
+
+            const username = document.getElementById('chat-username-input').value.trim();
+            if (!username) { chatSetStatus("Digite um nome de usuário.", false); return; }
+            if (myUsername && username === myUsername) { chatSetStatus("Esse é o seu próprio usuário.", false); return; }
+
+            chatSetStatus("Procurando...", true);
+
+            const { data, error } = await supabaseClient.rpc('find_user_by_username', { search_username: username });
+
+            if (error) {
+                chatSetStatus("Erro ao buscar jogador.", false);
+                console.error(error);
+                return;
+            }
+            if (!data || data.length === 0) {
+                chatSetStatus("Nenhum jogador encontrado com esse nome.", false);
+                return;
+            }
+
+            chatOtherUser = data[0];
+            chatSetStatus(`Conversando com ${chatOtherUser.username}`, true);
+            document.getElementById('chat-message-input-row').style.display = "flex";
+            document.getElementById('chat-window').classList.add('visible');
+
+            await chatLoadHistory();
+            chatSubscribeRealtime();
+        }
+
+        // Carrega o histórico de mensagens trocadas entre os dois usuários
+        async function chatLoadHistory() {
+            const { data, error } = await supabaseClient
+                .from('chat_messages')
+                .select('*')
+                .or(`and(sender_id.eq.${currentUser.id},receiver_id.eq.${chatOtherUser.user_id}),and(sender_id.eq.${chatOtherUser.user_id},receiver_id.eq.${currentUser.id})`)
+                .order('created_at', { ascending: true })
+                .limit(100);
+
+            if (error) {
+                console.error("Erro ao carregar histórico do chat:", error);
+                chatMessages = [];
+            } else {
+                chatMessages = data || [];
+            }
+            chatRenderMessages();
+        }
+
+        // Assina atualizações em tempo real — mensagens novas aparecem sem recarregar
+        function chatSubscribeRealtime() {
+            if (chatChannel) {
+                supabaseClient.removeChannel(chatChannel);
+                chatChannel = null;
+            }
+            chatChannel = supabaseClient
+                .channel(`chat-${currentUser.id}-${chatOtherUser.user_id}`)
+                .on('postgres_changes', {
+                    event: 'INSERT',
+                    schema: 'public',
+                    table: 'chat_messages'
+                }, (payload) => {
+                    const msg = payload.new;
+                    const isThisConversation =
+                        (msg.sender_id === currentUser.id && msg.receiver_id === chatOtherUser.user_id) ||
+                        (msg.sender_id === chatOtherUser.user_id && msg.receiver_id === currentUser.id);
+                    if (isThisConversation) {
+                        chatMessages.push(msg);
+                        chatRenderMessages();
+                    }
+                })
+                .subscribe();
+        }
+
+        function chatRenderMessages() {
+            const win = document.getElementById('chat-window');
+            win.innerHTML = "";
+            chatMessages.forEach(msg => {
+                const bubble = document.createElement('div');
+                bubble.className = "chat-bubble " + (msg.sender_id === currentUser.id ? "mine" : "theirs");
+                bubble.textContent = msg.message;
+                win.appendChild(bubble);
+            });
+            win.scrollTop = win.scrollHeight;
+        }
+
+        async function chatSendMessage() {
+            if (!chatOtherUser) return;
+            const input = document.getElementById('chat-message-input');
+            const text = input.value.trim();
+            if (!text) return;
+
+            input.value = "";
+            const { error } = await supabaseClient.from('chat_messages').insert({
+                sender_id: currentUser.id,
+                receiver_id: chatOtherUser.user_id,
+                message: text
+            });
+            if (error) {
+                chatSetStatus("Erro ao enviar mensagem.", false);
+                console.error(error);
+            }
+            // Não precisa adicionar manualmente à lista: a assinatura Realtime
+            // acima já recebe o INSERT de volta e atualiza a tela sozinha.
+        }
+        /* ================== FIM DO BLOCO DE CHAT ================== */
+
+
+
+        /* =====================================================================
+           SPRITES (PIXILART) — COLE SEUS BASE64 AQUI
+           =====================================================================
+           Como usar:
+           1. No Pixilart: File > Export > PNG, baixe a imagem.
+           2. Converta o PNG para Base64 (ex: site "base64-image.de", ou no
+              próprio navegador: abra o PNG, F12 > Console > cole:
+                fetch('URL_DA_IMAGEM').then(r=>r.blob()).then(b=>{
+                  const fr = new FileReader();
+                  fr.onload = () => console.log(fr.result);
+                  fr.readAsDataURL(b);
+                });
+              Isso imprime uma string longa começando com "data:image/png;base64,...."
+           3. Cole essa string inteira dentro das aspas abaixo, no lugar de "".
+           4. Se deixar em branco (""), o jogo desenha as formas padrão (círculos/
+              retângulos) como já fazia antes — nada quebra.
+           ===================================================================== */
+        const SPRITES_BASE64 = {
+            sonicIdle:   "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAA1klEQVR42mNkoDJwijv/H5nPza+CV/3mybyMyPz///+j6GdkZGTEp5+JYYiDUQ8MNGChd5onBPzyvowmoVEP0BMwDrZ6YDQJjXpgqOUB9DRPckX0ohyv/K5du0bbQqMeGAWjYBQMoXqA0v4AqW2j0WJ01AO0zgOUtnUw0njbWbzy3DIpo3lg1AP0BATHhfYtMqSorqB2HhpNQqMeoHceoDY4de7BaAyMemAUjIJRMIz6xKS2hdDbVoTkR4vRUQ8M9TxwSFoZJY3bPb3LSIr8aBIa9QCNAQCKtjYk/C+M3gAAAABJRU5ErkJggg==", // Sonic parado/correndo (enviado pelo usuário)
+            knucklesIdle: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAA3ElEQVR42mNkoBAsE5f7j8x3Z2VjoBYQfnKHkZAaJoYhDkY9MNCAhdoG7vz9i4HcPLHeTgItg90ZTUKDHjBS20BqFqujxeioB4ZCMYqe5gkVq8hggb4GfsOfjBajox4YBaNgxDUlKGlaENN0GC2FRj0w2HtkhNI8x4kK3JplUkaT0KgHBmUeINRkJqU57T8aA6MeGIJ5IOrlI7LbTOj55+jJ26MxMNojGwWjYLRLSX4xilwk45MbLUZHPTDqgVEPjBajDAwMDAzPHj5DKSql5KUYiZEbTUKjHqATAAAA7ThSxBXNjwAAAABJRU5ErkJggg==", // Knuckles (vermelho) — enviado pelo usuário
+            tailsIdle:    "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAArElEQVR42u2WMQqDMBRAkyI42dnRa/QA7eAhepQMOYqHcNALeAxvUOiWKR3binwQTUzgvTUQeeR9E6UAAAAyRr9744/Y6NpafYbAJfcTQOD0GZAWl/MRq/PhWf599944EkqWQjq+arLpNX97kRACQWdAwhvlg3Rt5d/5OJffGZ1rEkIg2gz8treGdMXv4dE5TUIIpPCcXj5rt7QZci8SQgABBBBAAAEAAAA4gA/hqiOQSYTcxwAAAABJRU5ErkJggg==", // Tails parado — enviado pelo usuário (usado enquanto ele VOA)
+            tailsWalk:    "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAABNUlEQVR42u2asQ3CMBBFbURFKkRJSpZggVBT0SKBGCNImQMkNqBnAoaghBJRQRvqs1AiYyexlXfd5Rrr6f732bFW7Udp5Nqy7jUGqucBgL4D0G1rvsyNBRQyf5+WIk/W50bXjAQAgAd439ej8i0kAICex9D7pp97FnxBBwAAADF5gLPm5y/jy5gOAAAAwvIAr7P/4pqJPLuuRH6hAwAAgK7P1vJOr5QWoLUOcc10AAAA8L+evO7ztvcDP87//BsEAAA69ABz31d7N0l+dofKepJu8QAkAICA7gNcZ31zDhhNN9ITHkc6AAAACMsDKt/t1c32df/yutY8HQAAADjP2VG/CaIDAACAxvVl9Ta4ro4HIAEAAAAAAABAvHPAM52J4uR+UzZ15gAkAIC4PYD7ACQAgKDjCwmQNyZAT3QiAAAAAElFTkSuQmCC", // Tails andando — enviado pelo usuário (usado enquanto ele está no CHÃO)
+            sonicRoll:    "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAAi0lEQVR42u2XsQmAMBQFnykFwU1cwM45nMoRHMHazr20SyUIP5H86F0ZCLwj10QCAChJY7hzOtkhSQq1v0D4S0Ixm2k+4mHbD1lGbEtnzomEPCf0aja5ciIhbwkVySYlJxJCAAEEEEAAAQQQQIAfGT+yTyb0mFMu9nW0bCKhqhK6zanwDhICAACAVC5x/RY8QxuiWgAAAABJRU5ErkJggg==", // Sonic girando (spin dash/pulo) — enviado pelo usuário
+            tailsRoll:    "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAAlUlEQVR42u3YsQ2AIBCFYc7Y2bmGjuYMkjiDo7mK9VmplCSCcOT/Kjq43DsjOAcAAMqR3Bscy6D3ehrPNIfe3nN31jtgvgBR1afFIiK1xqbZDlBAab3zcbEPZyXlvBAh+xGK5YUOUMCXCIU/UHSAAlqdAV2dWpsJIlQ8QrV+HokQBfx1qc+9QXjBT2XeT96FAAAAWnABtW4Ywn/6umcAAAAASUVORK5CYII=", // Tails girando (spin dash) — enviado pelo usuário
+            knucklesRoll: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAAb0lEQVR42u3ZrQ2AMBCA0R4roEHi2X8IPMHBHJQFWknKz/vkVb3kUnORKi3DlEvzMZ+pRf2xRWnepZcHAPB3QDztt7FCAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADcXtYfa7axV87661AMAfBFwAZmZDopXIi2dAAAAAElFTkSuQmCC", // Knuckles girando (spin dash) — enviado pelo usuário
+            enemy:       "", // (não usado mais — cada inimigo tem seu próprio sprite abaixo)
+            boss:        "", // Dr. Robotnik
+            ring:        "", // Anel (opcional — se vazio usa o desenho padrão)
+
+            // Inimigos (enviados pelo usuário via Pixilart, já redimensionados e com fundo transparente)
+            enemyShooter: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAAd0lEQVR42u3WvQmAMBAGUCNuYGnrLJk4VWaxtXQGbdVCQRH/3usCIdxHLuSKAoA/C0PTjk8usO67MF+nlBb1lm+/AQHuVr2t57WQAF//B9ZvQAsJ8PdZSAsJAABXzkJ7G2KMm7NSzjmcKeDs+UYJAQQQQAAAOGwCQSwaZa6AKVQAAAAASUVORK5CYII=", // vermelho: atira
+            enemyMelee:   "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAAlUlEQVR42u2Zuw2AIBBAOeMaFhT0bmJh73D2VnZM4QKGwj3UVmJBwRnFvNcREsjL8bkDMcpUQ3Nc27Zvo/61m0V1PlM4CLyNPL0HUuzjJiwhBACg3HsglfukyM2NOEYRQAABBBBAAIEMau0Bw7QQAQQAAABKQf1/wDkXvxNZG/V77/kjQwABBBD4cU18q5FDIAIIfJkTyYwVQgcPox4AAAAASUVORK5CYII=", // verde: corpo a corpo
+            enemyFlyer:   "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAAjUlEQVR42u3XvQ2AIBCGYVA3sDFxCKNzMIeDMAZzMIcT2FpaWhIdAAsw/qHvUxIS7gscyQkBIGnSWruGblZKyTuKiqkpS/0GCEAAAAAAADg61MdsHvrcG7bbyp1flA6vi5GSAH8PUIQ261UNa3Tjrc31snt+OY2SJ0QAAnwsgIz5hZ7WGccvRAACAMCrbPSeGN3XGOo2AAAAAElFTkSuQmCC"  // laranja: voa e atira
+        };
+
+        // Carrega as imagens (só cria o Image se houver base64 preenchido)
+        const sprites = {};
+        for (const key in SPRITES_BASE64) {
+            if (SPRITES_BASE64[key]) {
+                const img = new Image();
+                img.src = SPRITES_BASE64[key];
+                sprites[key] = img;
+            } else {
+                sprites[key] = null;
+            }
+        }
+
+        /* =====================================================================
+           ÁUDIO — efeitos sonoros gerados via WebAudio (sem precisar de arquivos)
+           ===================================================================== */
+        let audioCtx = null;
+        function getAudioCtx() {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            return audioCtx;
+        }
+        function beep(freq, duration, type = "square", volume = 0.15, delay = 0) {
+            try {
+                const ac = getAudioCtx();
+                const osc = ac.createOscillator();
+                const gain = ac.createGain();
+                osc.type = type;
+                osc.frequency.value = freq;
+                gain.gain.value = volume;
+                osc.connect(gain);
+                gain.connect(ac.destination);
+                const startTime = ac.currentTime + delay;
+                osc.start(startTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
+                osc.stop(startTime + duration);
+            } catch (e) { /* áudio pode falhar antes da 1ª interação do usuário */ }
+        }
+        const sfx = {
+            jump: () => beep(600, 0.15, "square", 0.12),
+            ring: () => beep(1200, 0.08, "sine", 0.1),
+            hit:  () => beep(150, 0.3, "sawtooth", 0.15),
+            stomp:() => beep(300, 0.12, "square", 0.15),
+            life: () => { beep(523, 0.1, "sine", 0.15, 0); beep(659, 0.1, "sine", 0.15, 0.1); beep(784, 0.15, "sine", 0.15, 0.2); },
+            gameOver: () => { beep(300, 0.2, "sawtooth", 0.15, 0); beep(200, 0.2, "sawtooth", 0.15, 0.2); beep(100, 0.4, "sawtooth", 0.15, 0.4); },
+            win: () => { beep(523, 0.15, "sine", 0.15, 0); beep(659, 0.15, "sine", 0.15, 0.15); beep(784, 0.15, "sine", 0.15, 0.3); beep(1047, 0.3, "sine", 0.15, 0.45); },
+            bossHit: () => beep(900, 0.1, "square", 0.15),
+            enemyShoot: () => beep(500, 0.08, "sawtooth", 0.08),
+            enemyMeleeCharge: () => beep(200, 0.15, "square", 0.1),
+            buy: () => { beep(880, 0.08, "sine", 0.12, 0); beep(1180, 0.12, "sine", 0.12, 0.08); },
+            denied: () => beep(140, 0.15, "sawtooth", 0.12)
+        };
+
+        /* =====================================================================
+           MÚSICA DE FUNDO — trilha chiptune ORIGINAL gerada via WebAudio.
+           Não é a música do Sonic (protegida por direitos autorais), mas usa a
+           mesma pegada 8-bit animada: melodia rápida em onda quadrada + baixo
+           em triângulo + "chimbal" de ruído, num loop estilo plataforma.
+           ===================================================================== */
+        let musicEnabled = true;
+        let musicGain = null;
+        let currentTrack = null;
+        let nextNoteTime = 0;
+        let current16th = 0;
+        let musicTimerID = null;
+        const musicLookaheadMs = 25.0;
+        const musicScheduleAhead = 0.12; // segundos
+
+        const NOTE_FREQ = {
+            C3: 130.81, D3: 146.83, E3: 164.81, F3: 174.61, G3: 196.00, A3: 220.00, B3: 246.94,
+            C4: 261.63, D4: 293.66, E4: 329.63, F4: 349.23, G4: 392.00, A4: 440.00, B4: 493.88,
+            C5: 523.25, D5: 587.33, E5: 659.25, F5: 698.46, G5: 783.99, A5: 880.00, B5: 987.77,
+            C6: 1046.50
+        };
+
+        // Cada faixa tem seu andamento e dois padrões de 32 passos (16avos): melodia e baixo.
+        // "-" = silêncio nesse passo.
+        const MUSIC_TRACKS = {
+            normal: {
+                bpm: 158,
+                melody: ["E5","-","G5","-","A5","G5","E5","-","D5","-","E5","-","G5","E5","D5","-",
+                         "C5","-","E5","-","G5","E5","C5","-","D5","-","F5","-","E5","D5","C5","-"],
+                bass:   ["C3","-","-","-","G3","-","-","-","A3","-","-","-","F3","-","-","-",
+                         "C3","-","-","-","G3","-","-","-","A3","-","-","-","G3","-","-","-"]
+            },
+            boss: {
+                bpm: 178,
+                melody: ["A4","C5","E5","-","A4","C5","E5","-","G4","B4","D5","-","G4","B4","D5","-",
+                         "F4","A4","C5","-","F4","A4","C5","-","E4","G4","B4","-","E4","G4","C5","-"],
+                bass:   ["A3","-","A3","-","A3","-","A3","-","G3","-","G3","-","G3","-","G3","-",
+                         "F3","-","F3","-","F3","-","F3","-","E3","-","E3","-","E3","-","E3","-"]
+            }
+        };
+
+        function ensureMusicGain() {
+            const ac = getAudioCtx();
+            if (!musicGain) {
+                musicGain = ac.createGain();
+                musicGain.gain.value = 0.45;
+                musicGain.connect(ac.destination);
+            }
+            return ac;
+        }
+
+        function playMusicTone(freq, time, duration, type, volume) {
+            const ac = getAudioCtx();
+            const osc = ac.createOscillator();
+            const gain = ac.createGain();
+            osc.type = type;
+            osc.frequency.value = freq;
+            gain.gain.setValueAtTime(0.0001, time);
+            gain.gain.linearRampToValueAtTime(volume, time + 0.01);
+            gain.gain.exponentialRampToValueAtTime(0.0001, time + duration);
+            osc.connect(gain);
+            gain.connect(musicGain);
+            osc.start(time);
+            osc.stop(time + duration);
+        }
+
+        function playMusicHat(time) {
+            const ac = getAudioCtx();
+            const bufferSize = Math.floor(ac.sampleRate * 0.03);
+            const buffer = ac.createBuffer(1, bufferSize, ac.sampleRate);
+            const data = buffer.getChannelData(0);
+            for (let i = 0; i < bufferSize; i++) data[i] = (Math.random() * 2 - 1) * (1 - i / bufferSize);
+            const noise = ac.createBufferSource();
+            noise.buffer = buffer;
+            const gain = ac.createGain();
+            gain.gain.setValueAtTime(0.05, time);
+            gain.gain.exponentialRampToValueAtTime(0.0001, time + 0.03);
+            noise.connect(gain);
+            gain.connect(musicGain);
+            noise.start(time);
+        }
+
+        function musicStep(step, time) {
+            const t = MUSIC_TRACKS[currentTrack];
+            const note = t.melody[step];
+            const bassNote = t.bass[step];
+            if (note && note !== "-") playMusicTone(NOTE_FREQ[note], time, 0.13, "square", 0.07);
+            if (bassNote && bassNote !== "-") playMusicTone(NOTE_FREQ[bassNote], time, 0.22, "triangle", 0.09);
+            if (step % 2 === 0) playMusicHat(time);
+        }
+
+        function musicScheduler() {
+            const ac = getAudioCtx();
+            const t = MUSIC_TRACKS[currentTrack];
+            while (nextNoteTime < ac.currentTime + musicScheduleAhead) {
+                musicStep(current16th, nextNoteTime);
+                const secondsPer16th = (60.0 / t.bpm) / 4;
+                nextNoteTime += secondsPer16th;
+                current16th = (current16th + 1) % t.melody.length;
+            }
+            musicTimerID = setTimeout(musicScheduler, musicLookaheadMs);
+        }
+
+        function startMusic(trackName) {
+            if (!musicEnabled) { currentTrack = trackName; return; }
+            const ac = ensureMusicGain();
+            if (currentTrack === trackName && musicTimerID) return; // já tocando essa faixa
+            stopMusic();
+            currentTrack = trackName;
+            current16th = 0;
+            nextNoteTime = ac.currentTime + 0.1;
+            musicScheduler();
+        }
+
+        function stopMusic() {
+            if (musicTimerID) {
+                clearTimeout(musicTimerID);
+                musicTimerID = null;
+            }
+        }
+
+        function toggleMusic() {
+            musicEnabled = !musicEnabled;
+            if (!musicEnabled) {
+                stopMusic();
+            } else if (gameState === "playing") {
+                startMusic(isBossZone(currentLevelIndex) ? "boss" : "normal");
+            }
+        }
+
+        // --- PALETAS DE CORES DE CADA FASE (Céu, Topo do Chão, Subsolo) ---
+        const NORMAL_THEMES = [
+            { sky: "#2080f0", top: "#00c000", bottom: "#d06000" }, // Emerald Hill
+            { sky: "#102050", top: "#e00080", bottom: "#301040" }, // Chemical Plant
+            { sky: "#00a0a0", top: "#20b060", bottom: "#705030" }, // Aquatic Ruin
+            { sky: "#2b0040", top: "#ffcc00", bottom: "#600080" }, // Casino Night
+            { sky: "#d04000", top: "#a03000", bottom: "#501500" }, // Hill Top
+            { sky: "#e07020", top: "#403020", bottom: "#1a1005" }, // Oil Ocean
+            { sky: "#304050", top: "#708090", bottom: "#202530" }, // Metropolis
+            { sky: "#60b0f0", top: "#ffffff", bottom: "#808080" }, // Sky Fortress
+            { sky: "#050515", top: "#444466", bottom: "#151525" }, // Death Egg
+            { sky: "#500000", top: "#ff3300", bottom: "#300000" }  // Lava Hideout
+        ];
+
+        const BOSS_THEMES = {
+            boss1:     { sky: "#0d2b0d", top: "#1b5e20", bottom: "#0a1a0a" }, // Fábrica verde
+            boss2:     { sky: "#001a33", top: "#0288d1", bottom: "#001122" }, // Fortaleza gelada
+            bossFinal: { sky: "#111122", top: "#00e5ff", bottom: "#222233" }  // Nave do Dr. Robotnik
+        };
+
+        /* =====================================================================
+           MAPA DE ZONAS — 13 zonas no total: 10 fases normais + 3 lutas de
+           chefe (2 chefes intermediários novos + o chefe final original).
+           Cada posição do array define o TIPO daquela zona; a dificuldade das
+           fases normais continua a mesma de antes (0 a 9), só que agora
+           intercalada com as lutas de chefe.
+           ===================================================================== */
+        const ZONE_TYPES = [
+            "normal", "normal", "normal", "normal", // Zonas 1-4
+            "boss1",                                 // Zona 5: 1º chefe (novo)
+            "normal", "normal", "normal", "normal", // Zonas 6-9
+            "boss2",                                 // Zona 10: 2º chefe (novo)
+            "normal", "normal",                      // Zonas 11-12
+            "bossFinal"                              // Zona 13: chefe final (Dr. Robotnik)
+        ];
+        const TOTAL_ZONES = ZONE_TYPES.length;
+
+        // Índice de dificuldade (0-9) de cada zona normal, na ordem em que aparecem —
+        // usado para escolher tema/obstáculos/inimigos com a mesma progressão de antes.
+        let __normalCounter = 0;
+        const NORMAL_DIFFICULTY_INDEX = ZONE_TYPES.map(t => t === "normal" ? __normalCounter++ : -1);
+
+        function isBossZone(zoneIndex) {
+            return ZONE_TYPES[zoneIndex] && ZONE_TYPES[zoneIndex] !== "normal";
+        }
+
+        function zoneTheme(zoneIndex) {
+            const type = ZONE_TYPES[zoneIndex] || "normal";
+            if (type === "normal") {
+                return NORMAL_THEMES[NORMAL_DIFFICULTY_INDEX[zoneIndex]] || NORMAL_THEMES[0];
+            }
+            return BOSS_THEMES[type] || BOSS_THEMES.bossFinal;
+        }
+
+        // Definições de cada chefe: vida, cores e ritmo de ataque diferentes
+        // para que os 3 combates não sejam todos iguais.
+        const BOSS_DEFS = {
+            boss1: {
+                name: "GUARDA MECÂNICO",
+                hp: 4,
+                bodyColor: "#4caf50",
+                headColor: "#c5e1a5",
+                armColor: "#2e7d32",
+                bulletColor: "#76ff03",
+                shootInterval: 100,
+                bulletSpeed: 3.5
+            },
+            boss2: {
+                name: "TITÃ DE GELO",
+                hp: 6,
+                bodyColor: "#4fc3f7",
+                headColor: "#e1f5fe",
+                armColor: "#0277bd",
+                bulletColor: "#00e5ff",
+                shootInterval: 90,
+                bulletSpeed: 4.2
+            },
+            bossFinal: {
+                name: "DR. ROBOTNIK",
+                hp: 5,
+                bodyColor: "#777777",
+                headColor: "#ffcc99",
+                armColor: "#795548",
+                bulletColor: "#ff5722",
+                shootInterval: 120,
+                bulletSpeed: 3
+            }
+        };
+
+        // --- SISTEMA GLOBAL ---
+        let currentLevelIndex = 0;
+        let score = 0;
+        let rings = 0;
+        let lives = 3;
+        let timeSeconds = 0;
+        let gameOver = false;
+        let gameWon = false;
+        let paused = false;
+        let gameState = "menu"; // "menu" | "character_select" | "playing" | "paused" | "gameover" | "won" | "shop"
+        let invulnerableTimer = 0; // frames de invencibilidade após tomar dano
+        let nextRingScoreMilestone = 100; // dá vida extra a cada 100 anéis coletados (soma total)
+        let totalRingsCollected = 0;
+
+        // --- LOJA (comprada com a pontuação final de cada partida) ---
+        // "coins" é a moeda da loja: ao terminar uma partida (Game Over ou vitória),
+        // parte da pontuação final vira moeda, que fica guardada para gastar na loja.
+        let coins = 0;
+        let shopReturnState = "menu"; // para onde voltar ao sair da loja (menu, gameover, won)
+        let shopMessage = "";
+        let shopMessageTimer = 0;
+        let shopPage = 0; // página atual da loja (6 itens por página)
+        const SHOP_ITEMS_PER_PAGE = 6;
+
+        const SHOP_ITEMS = [
+            {
+                id: "extraLife",
+                name: "VIDA EXTRA",
+                desc: "Começa cada\npartida com +1 vida",
+                cost: 300,
+                color: "#ff6666",
+                owned: false,
+                icon: "life"
+            },
+            {
+                id: "startRings",
+                name: "10 ANÉIS INICIAIS",
+                desc: "Começa cada\npartida com 10 anéis",
+                cost: 200,
+                color: "#ffeb3b",
+                owned: false,
+                icon: "ring"
+            },
+            {
+                id: "extraShield",
+                name: "ESCUDO INICIAL",
+                desc: "+3s de invencibilidade ao começar",
+                cost: 250,
+                color: "#00e5ff",
+                owned: false,
+                icon: "shield"
+            },
+            {
+                id: "ringMagnet",
+                name: "ÍMÃ DE ANÉIS",
+                desc: "Aumenta o raio de coleta de anéis",
+                cost: 220,
+                color: "#ba68c8",
+                owned: false,
+                icon: "magnet"
+            },
+            {
+                id: "doubleCoins",
+                name: "MOEDAS EM DOBRO",
+                desc: "Dobra as moedas ganhas ao fim",
+                cost: 400,
+                color: "#ffd700",
+                owned: false,
+                icon: "coin"
+            },
+            {
+                id: "extraFlyFuel",
+                name: "FÔLEGO EXTRA (TAILS)",
+                desc: "+50% de combustível de voo",
+                cost: 180,
+                color: "#4fc3f7",
+                owned: false,
+                icon: "wing"
+            },
+            {
+                id: "doubleRingScore",
+                name: "ANÉIS EM DOBRO",
+                desc: "Cada anel vale 200 pontos",
+                cost: 260,
+                color: "#ffca28",
+                owned: false,
+                icon: "ring2x"
+            },
+            {
+                id: "enemyBonus",
+                name: "CAÇADOR DE PONTOS",
+                desc: "Inimigos derrotados valem +100",
+                cost: 240,
+                color: "#ef5350",
+                owned: false,
+                icon: "target"
+            },
+            {
+                id: "secondChance",
+                name: "SEGUNDA CHANCE",
+                desc: "Revive 1x ao perder a última vida",
+                cost: 500,
+                color: "#ec407a",
+                owned: false,
+                icon: "revive"
+            },
+            {
+                id: "speedBoost",
+                name: "TÊNIS DE VELOCIDADE",
+                desc: "+15% de velocidade máxima",
+                cost: 300,
+                color: "#ffee58",
+                owned: false,
+                icon: "lightning"
+            },
+            {
+                id: "highJump",
+                name: "PULO REFORÇADO",
+                desc: "Pulo mais alto",
+                cost: 280,
+                color: "#66bb6a",
+                owned: false,
+                icon: "arrowup"
+            },
+            {
+                id: "bossBonus",
+                name: "CAÇADOR DE CHEFES",
+                desc: "+300 pontos ao derrotar um chefe",
+                cost: 260,
+                color: "#8d6e63",
+                owned: false,
+                icon: "crown"
+            }
+        ];
+
+        // Taxa de conversão de pontuação em moedas — reduzida de novo para ficar
+        // ainda mais difícil de juntar dinheiro (era pontuação / 10, depois / 25).
+        function coinsEarnedFromScore(finalScore) {
+            let earned = Math.floor(finalScore / 50);
+            if (SHOP_ITEMS.find(i => i.id === "doubleCoins" && i.owned)) {
+                earned *= 2;
+            }
+            return earned;
+        }
+
+        function buyItem(item) {
+            if (item.owned) return;
+            if (coins < item.cost) {
+                sfx.denied();
+                shopMessage = "Moedas insuficientes!";
+                shopMessageTimer = 90;
+                return;
+            }
+            coins -= item.cost;
+            item.owned = true;
+            sfx.buy();
+            shopMessage = `${item.name} comprado!`;
+            shopMessageTimer = 90;
+            savePlayerData(); // Supabase: persiste moedas e item comprado na conta
+        }
+
+        // Layout em grade (2 linhas x 3 colunas) usado tanto para desenhar quanto
+        // para detectar cliques nos cartões da loja — mantém as duas partes em sincronia.
+        function shopLayout() {
+            const cols = 3;
+            const cardWidth = 175;
+            const cardHeight = 140;
+            const spacingX = 20;
+            const spacingY = 12;
+            const totalWidth = cardWidth * cols + spacingX * (cols - 1);
+            const startX = (canvas.width - totalWidth) / 2;
+            const startY = 98;
+            return { cols, cardWidth, cardHeight, spacingX, spacingY, startX, startY };
+        }
+
+        function shopCardRect(i) {
+            const L = shopLayout();
+            const row = Math.floor(i / L.cols);
+            const col = i % L.cols;
+            return {
+                x: L.startX + col * (L.cardWidth + L.spacingX),
+                y: L.startY + row * (L.cardHeight + L.spacingY),
+                w: L.cardWidth,
+                h: L.cardHeight
+            };
+        }
+
+        function shopTotalPages() {
+            return Math.ceil(SHOP_ITEMS.length / SHOP_ITEMS_PER_PAGE);
+        }
+
+        function shopPageItems() {
+            const start = shopPage * SHOP_ITEMS_PER_PAGE;
+            return SHOP_ITEMS.slice(start, start + SHOP_ITEMS_PER_PAGE);
+        }
+
+        function shopChangePage(dir) {
+            const total = shopTotalPages();
+            shopPage = (shopPage + dir + total) % total;
+            sfx.jump();
+        }
+
+        function shopBackButtonRect() {
+            const L = shopLayout();
+            const rows = Math.ceil(SHOP_ITEMS_PER_PAGE / L.cols);
+            const gridBottom = L.startY + rows * L.cardHeight + (rows - 1) * L.spacingY;
+            return { x: canvas.width / 2 - 60, y: gridBottom + 10, w: 120, h: 30 };
+        }
+
+        // Setas "◀"/"▶" para trocar de página, desenhadas ao lado do título da loja
+        function shopArrowRect(side) {
+            const y = 40;
+            if (side === "left") return { x: 40, y: y - 14, w: 28, h: 28 };
+            return { x: canvas.width - 68, y: y - 14, w: 28, h: 28 };
+        }
+
+        function openShop(fromState) {
+            shopReturnState = fromState;
+            shopPage = 0;
+            gameState = "shop";
+        }
+
+        function closeShop() {
+            gameState = shopReturnState;
+        }
+
+        // --- PERSONAGENS JOGÁVEIS ---
+        // Cada personagem tem seu sprite e uma habilidade especial diferente.
+        const CHARACTERS = {
+            sonic: {
+                name: "SONIC",
+                spriteKey: "sonicIdle",
+                rollSpriteKey: "sonicRoll",
+                color: "#0066ff",
+                description: "Equilibrado. Spin Dash rápido.",
+                canFly: false,
+                spikesBack: false
+            },
+            tails: {
+                name: "TAILS",
+                spriteKey: "tailsIdle",
+                walkSpriteKey: "tailsWalk",
+                rollSpriteKey: "tailsRoll",
+                color: "#ff9800",
+                description: "Voa segurando [PULAR] no ar.",
+                canFly: true,
+                spikesBack: false
+            },
+            knuckles: {
+                name: "KNUCKLES",
+                spriteKey: "knucklesIdle",
+                rollSpriteKey: "knucklesRoll",
+                color: "#e53935",
+                description: "Costas com espinhos: imune a\nataque físico vindo por trás.",
+                canFly: false,
+                spikesBack: true
+            }
+        };
+        let selectedCharacter = "sonic";
+
+        setInterval(() => {
+            if (gameState === "playing") {
+                timeSeconds++;
+                const mins = Math.floor(timeSeconds / 60);
+                const secs = String(timeSeconds % 60).padStart(2, '0');
+                document.getElementById('hud-time').innerText = `${mins}:${secs}`;
+            }
+        }, 1000);
+
+        // --- FÍSICA DO SONIC (o objeto "sonic" representa o personagem jogável atual, seja quem for) ---
+        const sonicStartState = { x: 80, y: 300 };
+        const sonic = {
+            x: 80,
+            y: 300,
+            radius: 16,
+            vx: 0,
+            vy: 0,
+            accel: 0.25,
+            friction: 0.96,
+            gravity: 0.5,
+            jumpForce: -11,
+            maxSpeed: 8,
+            isGrounded: false,
+            isRolling: false,
+            isCrouching: false,
+            isSpinDashing: false,
+            spinDashCharge: 0,
+            facing: 1,
+            angle: 0,
+            // Voo do Tails
+            isFlying: false,
+            flyFuel: 100,
+            flyFuelMax: 100
+        };
+
+        // --- TECLAS ---
+        const keys = {};
+        const characterOrder = ["sonic", "tails", "knuckles"];
+
+        window.addEventListener('keydown', (e) => {
+            if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", " "].includes(e.key)) {
+                e.preventDefault();
+            }
+            keys[e.key] = true;
+
+            if (e.key === "p" || e.key === "P") {
+                togglePause();
+            }
+
+            if (e.key === "m" || e.key === "M") {
+                toggleMusic();
+            }
+
+            if (e.key === "l" || e.key === "L") {
+                if (gameState === "menu" || gameState === "gameover" || gameState === "won") {
+                    openShop(gameState);
+                } else if (gameState === "shop") {
+                    closeShop();
+                }
+            }
+
+            if (gameState === "menu" && (e.key === "Enter" || e.key === " ")) {
+                gameState = "character_select";
+                getAudioCtx();
+            } else if (gameState === "character_select") {
+                if (e.key === "ArrowLeft" || e.key === "a" || e.key === "A") {
+                    cycleCharacter(-1);
+                } else if (e.key === "ArrowRight" || e.key === "d" || e.key === "D") {
+                    cycleCharacter(1);
+                } else if (e.key === "Enter" || e.key === " ") {
+                    confirmCharacterAndStart();
+                }
+            } else if (gameState === "shop") {
+                if (e.key >= "1" && e.key <= "9") {
+                    const localIdx = parseInt(e.key, 10) - 1;
+                    const globalIdx = shopPage * SHOP_ITEMS_PER_PAGE + localIdx;
+                    if (SHOP_ITEMS[globalIdx] && localIdx < SHOP_ITEMS_PER_PAGE) buyItem(SHOP_ITEMS[globalIdx]);
+                }
+                if (e.key === "ArrowLeft" || e.key === "a" || e.key === "A") shopChangePage(-1);
+                if (e.key === "ArrowRight" || e.key === "d" || e.key === "D") shopChangePage(1);
+                if (e.key === "Escape") closeShop();
+            } else if ((e.key === "Enter" || e.key === " ") && (gameState === "gameover" || gameState === "won")) {
+                resetGame();
+            }
+        });
+        window.addEventListener('keyup', (e) => {
+            keys[e.key] = false;
+            if ((e.key === "ArrowDown" || e.key === "s" || e.key === "S") && sonic.isSpinDashing) {
+                sonic.isSpinDashing = false;
+                sonic.isRolling = true;
+                sonic.vx = sonic.facing * (8 + sonic.spinDashCharge * 2.5);
+                sonic.spinDashCharge = 0;
+            }
+        });
+        canvas.addEventListener('click', (e) => {
+            if (gameState === "menu") {
+                const rect = canvas.getBoundingClientRect();
+                const scaleX = canvas.width / rect.width;
+                const scaleY = canvas.height / rect.height;
+                const clickX = (e.clientX - rect.left) * scaleX;
+                const clickY = (e.clientY - rect.top) * scaleY;
+                if (isInsideShopButton(clickX, clickY)) {
+                    openShop("menu");
+                    return;
+                }
+                if (isInsideMultiplayerButton(clickX, clickY)) {
+                    startMultiplayerGame();
+                    return;
+                }
+                gameState = "character_select";
+                getAudioCtx();
+            } else if (gameState === "character_select") {
+                handleCharacterSelectClick(e);
+            } else if (gameState === "shop") {
+                handleShopClick(e);
+            } else if (gameState === "gameover" || gameState === "won") {
+                const rect = canvas.getBoundingClientRect();
+                const scaleX = canvas.width / rect.width;
+                const scaleY = canvas.height / rect.height;
+                const clickX = (e.clientX - rect.left) * scaleX;
+                const clickY = (e.clientY - rect.top) * scaleY;
+                if (isInsideShopButton(clickX, clickY)) {
+                    openShop(gameState);
+                }
+            }
+        });
+
+        function cycleCharacter(dir) {
+            const idx = characterOrder.indexOf(selectedCharacter);
+            const nextIdx = (idx + dir + characterOrder.length) % characterOrder.length;
+            selectedCharacter = characterOrder[nextIdx];
+            sfx.jump();
+        }
+
+        function handleCharacterSelectClick(e) {
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const clickX = (e.clientX - rect.left) * scaleX;
+
+            // Três cartões de personagem lado a lado — checa em qual o clique caiu
+            const cardWidth = 200;
+            const spacing = 40;
+            const totalWidth = cardWidth * 3 + spacing * 2;
+            const startX = (canvas.width - totalWidth) / 2;
+
+            characterOrder.forEach((charKey, i) => {
+                const cx = startX + i * (cardWidth + spacing);
+                if (clickX >= cx && clickX <= cx + cardWidth) {
+                    if (selectedCharacter === charKey) {
+                        confirmCharacterAndStart();
+                    } else {
+                        selectedCharacter = charKey;
+                        sfx.jump();
+                    }
+                }
+            });
+        }
+
+        // Retângulo do botão de loja mostrado no menu principal / telas de fim de jogo
+        function isInsideShopButton(x, y) {
+            const btn = shopButtonRect();
+            return x >= btn.x && x <= btn.x + btn.w && y >= btn.y && y <= btn.y + btn.h;
+        }
+        function shopButtonRect() {
+            return { x: canvas.width / 2 - 70, y: canvas.height - 60, w: 140, h: 34 };
+        }
+
+        function handleShopClick(e) {
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+            const clickX = (e.clientX - rect.left) * scaleX;
+            const clickY = (e.clientY - rect.top) * scaleY;
+
+            shopPageItems().forEach((item, i) => {
+                const card = shopCardRect(i);
+                if (clickX >= card.x && clickX <= card.x + card.w && clickY >= card.y && clickY <= card.y + card.h) {
+                    buyItem(item);
+                }
+            });
+
+            // Setas de troca de página (só aparecem se houver mais de 1 página)
+            if (shopTotalPages() > 1) {
+                const leftArrow = shopArrowRect("left");
+                const rightArrow = shopArrowRect("right");
+                if (clickX >= leftArrow.x && clickX <= leftArrow.x + leftArrow.w && clickY >= leftArrow.y && clickY <= leftArrow.y + leftArrow.h) {
+                    shopChangePage(-1);
+                    return;
+                }
+                if (clickX >= rightArrow.x && clickX <= rightArrow.x + rightArrow.w && clickY >= rightArrow.y && clickY <= rightArrow.y + rightArrow.h) {
+                    shopChangePage(1);
+                    return;
+                }
+            }
+
+            // Botão "Voltar"
+            const backBtn = shopBackButtonRect();
+            if (clickX >= backBtn.x && clickX <= backBtn.x + backBtn.w && clickY >= backBtn.y && clickY <= backBtn.y + backBtn.h) {
+                closeShop();
+            }
+        }
+
+        function confirmCharacterAndStart() {
+            sfx.life();
+            resetGame();
+        }
+
+        function togglePause() {
+            if (gameState === "playing") {
+                gameState = "paused";
+                stopMusic();
+            } else if (gameState === "paused") {
+                gameState = "playing";
+                startMusic(isBossZone(currentLevelIndex) ? "boss" : "normal");
+            }
+        }
+
+        // Volta para a tela de menu inicial, zerando todo o progresso da run atual
+        function goToMenu() {
+            gameState = "menu";
+            gameOver = false;
+            gameWon = false;
+            mp_active = false; // caso esteja saindo do modo 2 jogadores local
+            stopMusic();
+            paused = false;
+        }
+
+        // Mostra/esconde o botão de menu conforme o estado do jogo
+        // (fica visível durante o jogo, pausa, game over e vitória — some no menu, seleção e loja)
+        function updateMenuButtonVisibility() {
+            const btn = document.getElementById('menu-btn');
+            const hideStates = ["menu", "character_select", "shop"];
+            btn.style.display = hideStates.includes(gameState) ? "none" : "block";
+
+            // Botão de chat: só no menu principal, e só se houver conta logada
+            const chatBtn = document.getElementById('chat-menu-btn');
+            chatBtn.style.display = (gameState === "menu" && currentUser) ? "block" : "none";
+        }
+
+        function updateLivesHud() {
+            document.getElementById('hud-lives').innerText = lives;
+        }
+
+        function resetGame() {
+            score = 0;
+            rings = SHOP_ITEMS[1].owned ? 10 : 0; // item "10 ANÉIS INICIAIS"
+            totalRingsCollected = 0;
+            lives = 3 + (SHOP_ITEMS[0].owned ? 1 : 0); // item "VIDA EXTRA"
+            timeSeconds = 0;
+            nextRingScoreMilestone = 100;
+            gameOver = false;
+            gameWon = false;
+            usedRevive = false; // item "SEGUNDA CHANCE" fica disponível de novo a cada partida
+            invulnerableTimer = SHOP_ITEMS[2].owned ? 180 : 0; // item "ESCUDO INICIAL" (+3s a 60fps)
+            sonic.isFlying = false;
+            const extraFuelOwned = SHOP_ITEMS.find(i => i.id === "extraFlyFuel" && i.owned);
+            sonic.flyFuelMax = extraFuelOwned ? 150 : 100; // item "FÔLEGO EXTRA (TAILS)"
+            sonic.flyFuel = sonic.flyFuelMax;
+            const speedBoostOwned = SHOP_ITEMS.find(i => i.id === "speedBoost" && i.owned);
+            sonic.maxSpeed = speedBoostOwned ? 8 * 1.15 : 8; // item "TÊNIS DE VELOCIDADE"
+            const highJumpOwned = SHOP_ITEMS.find(i => i.id === "highJump" && i.owned);
+            sonic.jumpForce = highJumpOwned ? -11 * 1.2 : -11; // item "PULO REFORÇADO"
+            sonic.vx = 0;
+            sonic.vy = 0;
+            document.getElementById('hud-score').innerText = score;
+            document.getElementById('hud-rings').innerText = rings;
+            document.getElementById('hud-time').innerText = "0:00";
+            document.getElementById('hud-character').innerText = CHARACTERS[selectedCharacter].name;
+            document.getElementById('hud-character').style.color = CHARACTERS[selectedCharacter].color;
+            updateLivesHud();
+            loadLevel(0);
+            gameState = "playing";
+            startMusic("normal");
+        }
+
+        // --- MUNDO E CÂMERA ---
+        let cameraX = 0;
+        const groundY = 380;
+        let levelWidth = 3200;
+
+        // --- ELEMENTOS DE FASE ---
+        let ringObjects = [];
+        let enemies = [];
+        let ramps = [];
+        let clouds = []; // paralaxe de fundo
+        let spikes = [];      // picos fixos no chão (dano ao tocar)
+        let pits = [];        // buracos no chão (queda = perde vida)
+        let platforms = [];   // plataformas móveis (sobe/desce ou vai/volta)
+        let springs = [];     // molas (impulsionam o Sonic para cima ou para o lado)
+        let finishFlag = { x: 3000, y: groundY - 40 };
+
+        // --- CONFIGURAÇÃO DE OBSTÁCULOS POR FASE (temas diferentes por zona) ---
+        // Cada fase ativa um subconjunto de tipos de obstáculo, crescendo em dificuldade.
+        const obstacleConfig = [
+            { spikes: false, pits: false, platforms: true,  springs: true  }, // 1 Emerald Hill: introdução leve
+            { spikes: true,  pits: false, platforms: true,  springs: false }, // 2 Chemical Plant: picos surgem
+            { spikes: false, pits: true,  platforms: true,  springs: true  }, // 3 Aquatic Ruin: buracos (água)
+            { spikes: true,  pits: false, platforms: true,  springs: true  }, // 4 Casino Night: tudo junto, ritmo rápido
+            { spikes: true,  pits: true,  platforms: false, springs: false }, // 5 Hill Top: picos vulcânicos e buracos
+            { spikes: true,  pits: true,  platforms: true,  springs: false }, // 6 Oil Ocean: poços de óleo
+            { spikes: false, pits: false, platforms: true,  springs: true  }, // 7 Metropolis: plataformas industriais
+            { spikes: true,  pits: true,  platforms: true,  springs: true  }, // 8 Sky Fortress: máximo desafio aéreo
+            { spikes: true,  pits: true,  platforms: true,  springs: true  }, // 9 Death Egg: tudo, mais denso
+            { spikes: true,  pits: true,  platforms: true,  springs: true  }, // 10 Lava Hideout: tudo, mais denso ainda
+        ];
+
+        // OBJETO DE CHEFE GENÉRICO — recebe os dados de BOSS_DEFS conforme a zona
+        // de chefe carregada (boss1, boss2 ou bossFinal), então os 3 combates
+        // usam a mesma lógica de movimento/colisão com aparência e ritmo próprios.
+        const boss = {
+            type: "bossFinal",
+            name: "DR. ROBOTNIK",
+            x: 500,
+            y: 290,
+            width: 60,
+            height: 50,
+            vx: 3,
+            hp: 5,
+            maxHp: 5,
+            active: false,
+            shootTimer: 0,
+            shootInterval: 120,
+            bulletSpeed: 3,
+            bodyColor: "#777777",
+            headColor: "#ffcc99",
+            armColor: "#795548",
+            bulletColor: "#ff5722",
+            bullets: []
+        };
+
+        // Prepara o objeto "boss" com os dados do tipo de chefe daquela zona
+        function setupBoss(bossType) {
+            const def = BOSS_DEFS[bossType] || BOSS_DEFS.bossFinal;
+            boss.type = bossType;
+            boss.name = def.name;
+            boss.hp = def.hp;
+            boss.maxHp = def.hp;
+            boss.bodyColor = def.bodyColor;
+            boss.headColor = def.headColor;
+            boss.armColor = def.armColor;
+            boss.bulletColor = def.bulletColor;
+            boss.shootInterval = def.shootInterval;
+            boss.bulletSpeed = def.bulletSpeed;
+            boss.x = 500;
+            boss.y = 290;
+            boss.vx = 3;
+            boss.active = true;
+            boss.shootTimer = 0;
+            boss.bullets = [];
+        }
+
+        function generateClouds() {
+            clouds = [];
+            const count = 14;
+            for (let i = 0; i < count; i++) {
+                clouds.push({
+                    x: Math.random() * levelWidth * 1.3,
+                    y: 40 + Math.random() * 140,
+                    scale: 0.6 + Math.random() * 1,
+                    speed: 0.15 + Math.random() * 0.15
+                });
+            }
+        }
+
+        function generateObstacles(levelNum) {
+            const cfg = obstacleConfig[levelNum] || obstacleConfig[0];
+            const difficulty = 1 + levelNum * 0.15; // aumenta densidade/velocidade nas fases avançadas
+
+            // Zona segura perto do início e do fim (evita obstáculo em cima do spawn/bandeira)
+            const safeStart = 400;
+            const safeEnd = levelWidth - 250;
+
+            // --- PICOS (fixos no chão, dano ao encostar) ---
+            if (cfg.spikes) {
+                const spikeGroupCount = Math.floor(2 + levelNum * 0.6);
+                for (let i = 0; i < spikeGroupCount; i++) {
+                    const groupX = safeStart + Math.random() * (safeEnd - safeStart);
+                    const spikeCount = 2 + Math.floor(Math.random() * 3);
+                    for (let s = 0; s < spikeCount; s++) {
+                        spikes.push({ x: groupX + s * 22, y: groundY, width: 20, height: 18 });
+                    }
+                }
+            }
+
+            // --- BURACOS (queda = perde vida direto) ---
+            if (cfg.pits) {
+                const pitCount = Math.floor(1 + levelNum * 0.35);
+                for (let i = 0; i < pitCount; i++) {
+                    const pitX = safeStart + (i + 1) * ((safeEnd - safeStart) / (pitCount + 1));
+                    const pitWidth = 60 + Math.random() * 40 * difficulty;
+                    pits.push({ x: pitX - pitWidth / 2, width: pitWidth });
+                }
+            }
+
+            // --- PLATAFORMAS MÓVEIS ---
+            if (cfg.platforms) {
+                const platCount = Math.floor(2 + levelNum * 0.5);
+                for (let i = 0; i < platCount; i++) {
+                    const px = safeStart + Math.random() * (safeEnd - safeStart);
+                    const vertical = Math.random() > 0.5;
+                    if (vertical) {
+                        platforms.push({
+                            x: px, width: 90, height: 16,
+                            baseY: groundY - 60 - Math.random() * 60,
+                            range: 40 + Math.random() * 40,
+                            speed: (0.5 + Math.random() * 0.5) * (0.7 + levelNum * 0.05),
+                            axis: "y", phase: Math.random() * Math.PI * 2
+                        });
+                    } else {
+                        platforms.push({
+                            x: px, width: 90, height: 16,
+                            baseX: px,
+                            y: groundY - 70 - Math.random() * 50,
+                            range: 60 + Math.random() * 60,
+                            speed: (0.5 + Math.random() * 0.5) * (0.7 + levelNum * 0.05),
+                            axis: "x", phase: Math.random() * Math.PI * 2
+                        });
+                    }
+                }
+            }
+
+            // --- MOLAS (impulsionam o Sonic) ---
+            if (cfg.springs) {
+                const springCount = Math.floor(1 + levelNum * 0.3);
+                for (let i = 0; i < springCount; i++) {
+                    const sx = safeStart + Math.random() * (safeEnd - safeStart);
+                    springs.push({ x: sx, y: groundY, width: 26, height: 20, power: -14 - Math.random() * 3 });
+                }
+            }
+        }
+
+        function loadLevel(levelNum) {
+            currentLevelIndex = levelNum;
+            document.getElementById('hud-zone').innerText = `${levelNum + 1} / ${TOTAL_ZONES}`;
+
+            sonic.x = sonicStartState.x;
+            sonic.y = sonicStartState.y;
+            sonic.vx = 0;
+            sonic.vy = 0;
+            invulnerableTimer = Math.max(invulnerableTimer, 60); // pequena invencibilidade ao (re)entrar na fase
+
+            ringObjects = [];
+            enemies = [];
+            ramps = [];
+            spikes = [];
+            pits = [];
+            platforms = [];
+            springs = [];
+
+            const zoneType = ZONE_TYPES[levelNum] || "normal";
+
+            if (zoneType === "normal") {
+                const normalIdx = NORMAL_DIFFICULTY_INDEX[levelNum]; // 0-9, mesma progressão de dificuldade de antes
+                levelWidth = 2500 + (normalIdx * 400);
+                finishFlag.x = levelWidth - 150;
+                boss.active = false;
+
+                for (let x = 300; x < levelWidth - 300; x += 150 + Math.random() * 200) {
+                    ringObjects.push({ x: x, y: 340, collected: false });
+                    ringObjects.push({ x: x + 40, y: 340, collected: false });
+                }
+
+                const enemyCount = 3 + normalIdx * 2;
+                for (let i = 0; i < enemyCount; i++) {
+                    let ex = 500 + (i * (levelWidth - 700) / enemyCount);
+                    // Alterna os 3 tipos de inimigo ao longo da fase
+                    const typeRoll = i % 3;
+                    if (typeRoll === 0) {
+                        // VERMELHO — atira à distância, fica parado/patrulha devagar
+                        enemies.push({
+                            type: "shooter",
+                            x: ex, y: 360, width: 32, height: 20,
+                            vx: -0.6 - (normalIdx * 0.05), startX: ex - 60, endX: ex + 60, alive: true,
+                            shootTimer: Math.floor(Math.random() * 90), bullets: []
+                        });
+                    } else if (typeRoll === 1) {
+                        // VERDE — corpo a corpo, investe quando o Sonic se aproxima
+                        enemies.push({
+                            type: "melee",
+                            x: ex, y: 360, width: 32, height: 20,
+                            vx: -1.5 - (normalIdx * 0.15), startX: ex - 80, endX: ex + 80, alive: true,
+                            charging: false, chargeCooldown: 0
+                        });
+                    } else {
+                        // LARANJA — voa e atira
+                        enemies.push({
+                            type: "flyer",
+                            x: ex, y: 220 + Math.random() * 60, width: 32, height: 22, alive: true,
+                            baseY: 220 + Math.random() * 60, flyPhase: Math.random() * Math.PI * 2,
+                            vx: -1.2 - (normalIdx * 0.1), startX: ex - 100, endX: ex + 100,
+                            shootTimer: Math.floor(Math.random() * 100), bullets: []
+                        });
+                    }
+                }
+
+                ramps.push({ startX: 700, endX: 900, peakY: 240 });
+                if (normalIdx > 3) ramps.push({ startX: 1600, endX: 1800, peakY: 220 });
+
+                generateObstacles(normalIdx);
+
+            } else {
+                // Zona de chefe (boss1, boss2 ou bossFinal)
+                levelWidth = 800;
+                finishFlag.x = -999;
+                setupBoss(zoneType);
+
+                ringObjects.push({ x: 100, y: 340, collected: false });
+                ringObjects.push({ x: 200, y: 340, collected: false });
+                ringObjects.push({ x: 700, y: 340, collected: false });
+            }
+
+            generateClouds();
+
+            // Troca a trilha sonora ao entrar em zona de chefe (ou de volta ao normal, se reiniciar)
+            if (gameState === "playing") {
+                startMusic(zoneType !== "normal" ? "boss" : "normal");
+            }
+        }
+
+        loadLevel(0);
+
+        // --- LÓGICA DE ATUALIZAÇÃO ---
+        function update() {
+            if (shopMessageTimer > 0) shopMessageTimer--;
+
+            if (gameState !== "playing") return;
+
+            if (invulnerableTimer > 0) invulnerableTimer--;
+
+            // 1. Agachamento / Spin Dash
+            if (sonic.isGrounded && (keys["ArrowDown"] || keys["s"] || keys["S"])) {
+                if (Math.abs(sonic.vx) < 0.5) {
+                    sonic.vx = 0;
+                    sonic.isCrouching = true;
+
+                    if (keys[" "] || keys["w"] || keys["ArrowUp"]) {
+                        if (sonic.spinDashCharge === 0) sfx.jump();
+                        sonic.isSpinDashing = true;
+                        sonic.spinDashCharge = Math.min(sonic.spinDashCharge + 1, 5);
+                        keys[" "] = false;
+                        keys["w"] = false;
+                        keys["ArrowUp"] = false;
+                    }
+                } else {
+                    sonic.isRolling = true;
+                }
+            } else {
+                sonic.isCrouching = false;
+            }
+
+            // 2. Movimento Lateral
+            if (!sonic.isSpinDashing && !sonic.isCrouching) {
+                if (keys["ArrowRight"] || keys["d"] || keys["D"]) {
+                    if (sonic.vx < sonic.maxSpeed) sonic.vx += sonic.accel;
+                    sonic.facing = 1;
+                } else if (keys["ArrowLeft"] || keys["a"] || keys["A"]) {
+                    if (sonic.vx > -sonic.maxSpeed) sonic.vx -= sonic.accel;
+                    sonic.facing = -1;
+                } else {
+                    sonic.vx *= sonic.friction;
+                }
+            }
+
+            if (sonic.isRolling) {
+                sonic.vx *= 0.98;
+                if (Math.abs(sonic.vx) < 0.5) sonic.isRolling = false;
+            }
+
+            // 3. Pulo
+            if ((keys[" "] || keys["w"] || keys["ArrowUp"]) && sonic.isGrounded && !sonic.isCrouching) {
+                sonic.vy = sonic.jumpForce;
+                sonic.isGrounded = false;
+                sonic.isRolling = true;
+                sfx.jump();
+            }
+
+            // 3b. Voo do Tails — segurar pular no ar consome combustível e flutua devagar
+            const character = CHARACTERS[selectedCharacter];
+            const holdingJump = keys[" "] || keys["w"] || keys["ArrowUp"];
+
+            if (character.canFly && !sonic.isGrounded && holdingJump && sonic.flyFuel > 0) {
+                sonic.isFlying = true;
+                sonic.vy = Math.max(sonic.vy - 0.9, -2.2); // flutua suavemente para cima
+                sonic.flyFuel = Math.max(0, sonic.flyFuel - 1);
+            } else {
+                sonic.isFlying = false;
+            }
+
+            if (sonic.isGrounded) {
+                // recarrega o combustível de voo enquanto está no chão
+                sonic.flyFuel = Math.min(sonic.flyFuelMax, sonic.flyFuel + 2);
+            }
+
+            sonic.vy += sonic.gravity * (sonic.isFlying ? 0.35 : 1); // gravidade reduzida enquanto voa
+            sonic.x += sonic.vx;
+            sonic.y += sonic.vy;
+
+            if (sonic.x - sonic.radius < 0) { sonic.x = sonic.radius; sonic.vx = 0; }
+            if (sonic.x + sonic.radius > levelWidth) { sonic.x = levelWidth - sonic.radius; sonic.vx = 0; }
+
+            // 4. Colisão com Chão e Rampas
+            let currentGroundY = groundY;
+            for (let ramp of ramps) {
+                if (sonic.x >= ramp.startX && sonic.x <= ramp.endX) {
+                    let progress = (sonic.x - ramp.startX) / (ramp.endX - ramp.startX);
+                    currentGroundY = groundY - Math.sin(progress * Math.PI) * (groundY - ramp.peakY);
+                }
+            }
+
+            // Verifica se o Sonic está sobre um buraco (pit) — nesse caso não há chão ali
+            const overPit = pits.some(p => sonic.x > p.x && sonic.x < p.x + p.width);
+
+            // 4b. Colisão com plataformas móveis (checadas antes do chão para permitir pousar em cima)
+            let onPlatform = false;
+            platforms.forEach(plat => {
+                if (plat.axis === "y") {
+                    plat.y = plat.baseY + Math.sin(Date.now() / 1000 * plat.speed + plat.phase) * plat.range;
+                } else {
+                    plat.x = plat.baseX + Math.sin(Date.now() / 1000 * plat.speed + plat.phase) * plat.range;
+                }
+
+                const withinX = sonic.x + sonic.radius * 0.6 > plat.x - plat.width / 2 &&
+                                 sonic.x - sonic.radius * 0.6 < plat.x + plat.width / 2;
+                const platTop = plat.y - plat.height / 2;
+
+                if (withinX && sonic.vy >= 0 &&
+                    sonic.y + sonic.radius >= platTop &&
+                    sonic.y + sonic.radius <= platTop + 14) {
+                    sonic.y = platTop - sonic.radius;
+                    sonic.vy = 0;
+                    sonic.isGrounded = true;
+                    onPlatform = true;
+                    if (!sonic.isSpinDashing && Math.abs(sonic.vx) < 0.5) sonic.isRolling = false;
+                }
+            });
+
+            if (!onPlatform) {
+                if (!overPit && sonic.y + sonic.radius >= currentGroundY) {
+                    sonic.y = currentGroundY - sonic.radius;
+                    sonic.vy = 0;
+                    sonic.isGrounded = true;
+                    if (!sonic.isSpinDashing && Math.abs(sonic.vx) < 0.5) sonic.isRolling = false;
+                } else {
+                    sonic.isGrounded = false;
+                }
+            }
+
+            // Caiu num buraco / fora da tela por baixo -> perde vida
+            if (sonic.y - sonic.radius > canvas.height + 40) {
+                loseLife();
+            }
+
+            sonic.angle += sonic.vx * 0.15;
+
+            // 4c. Picos (spikes) — dano ao encostar
+            spikes.forEach(sp => {
+                const dx = Math.abs(sonic.x - (sp.x + sp.width / 2));
+                const spTop = sp.y - sp.height;
+                if (dx < sp.width / 2 + sonic.radius * 0.5 &&
+                    sonic.y + sonic.radius > spTop + 4) {
+                    takeDamage();
+                    sonic.vy = -7; // sempre dá um empurrão para cima ao encostar num pico
+                }
+            });
+
+            // 4d. Molas — impulsionam o Sonic para cima
+            springs.forEach(sp => {
+                const dx = Math.abs(sonic.x - sp.x);
+                const spTop = sp.y - sp.height;
+                if (dx < sp.width / 2 + sonic.radius * 0.5 &&
+                    sonic.vy >= 0 &&
+                    sonic.y + sonic.radius >= spTop &&
+                    sonic.y + sonic.radius <= spTop + 16) {
+                    sonic.vy = sp.power;
+                    sonic.isGrounded = false;
+                    sfx.jump();
+                }
+            });
+
+            // Câmera
+            cameraX = sonic.x - canvas.width / 3;
+            cameraX = Math.max(0, Math.min(levelWidth - canvas.width, cameraX));
+
+            // Nuvens (paralaxe)
+            clouds.forEach(c => {
+                c.x -= c.speed;
+                if (c.x < -200) c.x = levelWidth + 200;
+            });
+
+            // 5. Coleta de Anéis
+            const ringMagnetOwned = SHOP_ITEMS.find(i => i.id === "ringMagnet" && i.owned);
+            const ringCollectRange = sonic.radius + (ringMagnetOwned ? 45 : 10); // item "ÍMÃ DE ANÉIS"
+            const doubleRingScoreOwned = SHOP_ITEMS.find(i => i.id === "doubleRingScore" && i.owned);
+            const ringScoreValue = doubleRingScoreOwned ? 200 : 100; // item "ANÉIS EM DOBRO"
+            ringObjects.forEach(ring => {
+                if (!ring.collected) {
+                    let dist = Math.hypot(sonic.x - ring.x, sonic.y - ring.y);
+                    if (dist < ringCollectRange) {
+                        ring.collected = true;
+                        rings++;
+                        totalRingsCollected++;
+                        score += ringScoreValue;
+                        sfx.ring();
+                        document.getElementById('hud-rings').innerText = rings;
+                        document.getElementById('hud-score').innerText = score;
+
+                        if (totalRingsCollected >= nextRingScoreMilestone) {
+                            lives++;
+                            updateLivesHud();
+                            sfx.life();
+                            nextRingScoreMilestone += 100;
+                        }
+                    }
+                }
+            });
+
+            // 6. Passar de Fase
+            if (!isBossZone(currentLevelIndex) && sonic.x >= finishFlag.x) {
+                loadLevel(currentLevelIndex + 1);
+            }
+
+            // 7. Inimigos (3 tipos: shooter, melee, flyer)
+            enemies.forEach(enemy => {
+                if (!enemy.alive) return;
+
+                if (enemy.type === "shooter") {
+                    // VERMELHO: patrulha devagar e atira projéteis horizontais na direção do Sonic
+                    enemy.x += enemy.vx;
+                    if (enemy.x < enemy.startX || enemy.x > enemy.endX) enemy.vx *= -1;
+
+                    enemy.shootTimer++;
+                    const dxToSonic = Math.abs(sonic.x - enemy.x);
+                    if (enemy.shootTimer % 100 === 0 && dxToSonic < 500) {
+                        const dir = sonic.x > enemy.x ? 1 : -1;
+                        enemy.bullets.push({ x: enemy.x, y: enemy.y - 8, vx: dir * 4.5, vy: 0 });
+                        sfx.enemyShoot();
+                    }
+
+                } else if (enemy.type === "melee") {
+                    // VERDE: patrulha e investe (dash) quando o Sonic está perto e no chão
+                    const dxToSonic = sonic.x - enemy.x;
+                    const distToSonic = Math.abs(dxToSonic);
+
+                    if (enemy.chargeCooldown > 0) enemy.chargeCooldown--;
+
+                    if (!enemy.charging && distToSonic < 180 && distToSonic > 20 && enemy.chargeCooldown === 0) {
+                        enemy.charging = true;
+                        enemy.chargeDir = dxToSonic > 0 ? 1 : -1;
+                        sfx.enemyMeleeCharge();
+                    }
+
+                    if (enemy.charging) {
+                        enemy.x += enemy.chargeDir * 5;
+                        // para a investida ao sair muito do range de patrulha ou tempo excedido
+                        if (enemy.x < enemy.startX - 100 || enemy.x > enemy.endX + 100) {
+                            enemy.charging = false;
+                            enemy.chargeCooldown = 90;
+                        }
+                    } else {
+                        enemy.x += enemy.vx;
+                        if (enemy.x < enemy.startX || enemy.x > enemy.endX) enemy.vx *= -1;
+                    }
+
+                } else if (enemy.type === "flyer") {
+                    // LARANJA: voa em padrão ondulado e atira projéteis
+                    enemy.x += enemy.vx;
+                    if (enemy.x < enemy.startX || enemy.x > enemy.endX) enemy.vx *= -1;
+                    enemy.flyPhase += 0.04;
+                    enemy.y = enemy.baseY + Math.sin(enemy.flyPhase) * 30;
+
+                    enemy.shootTimer++;
+                    const dxToSonic = Math.abs(sonic.x - enemy.x);
+                    if (enemy.shootTimer % 130 === 0 && dxToSonic < 550) {
+                        const angle = Math.atan2(sonic.y - enemy.y, sonic.x - enemy.x);
+                        enemy.bullets.push({ x: enemy.x, y: enemy.y, vx: Math.cos(angle) * 4, vy: Math.sin(angle) * 4 });
+                        sfx.enemyShoot();
+                    }
+                }
+
+                // Projéteis do inimigo (shooter e flyer)
+                if (enemy.bullets) {
+                    for (let i = enemy.bullets.length - 1; i >= 0; i--) {
+                        const b = enemy.bullets[i];
+                        b.x += b.vx;
+                        b.y += b.vy;
+
+                        const bDist = Math.hypot(sonic.x - b.x, sonic.y - b.y);
+                        if (bDist < sonic.radius + 6) {
+                            takeDamage();
+                            enemy.bullets.splice(i, 1);
+                        } else if (b.x < cameraX - 100 || b.x > cameraX + canvas.width + 100 || b.y > canvas.height + 50 || b.y < -50) {
+                            enemy.bullets.splice(i, 1);
+                        }
+                    }
+                }
+
+                // Colisão corpo a corpo com o Sonic/personagem (vale para os 3 tipos de inimigo)
+                let dist = Math.hypot(sonic.x - enemy.x, sonic.y - enemy.y);
+                if (dist < sonic.radius + 16) {
+                    // "Por trás" = o inimigo está do lado oposto para o qual o personagem está virado
+                    const enemyIsBehind = (sonic.facing === 1 && enemy.x < sonic.x) ||
+                                           (sonic.facing === -1 && enemy.x > sonic.x);
+                    const enemyBonusOwned = SHOP_ITEMS.find(i => i.id === "enemyBonus" && i.owned);
+                    const enemyKillScore = 200 + (enemyBonusOwned ? 100 : 0); // item "CAÇADOR DE PONTOS"
+
+                    if (sonic.vy > 0 || sonic.isRolling || sonic.isSpinDashing) {
+                        enemy.alive = false;
+                        sonic.vy = -7;
+                        score += enemyKillScore;
+                        sfx.stomp();
+                        document.getElementById('hud-score').innerText = score;
+                    } else if (character.spikesBack && enemyIsBehind) {
+                        // Knuckles: espinhos nas costas — o inimigo é quem toma dano ao encostar por trás
+                        enemy.alive = false;
+                        score += enemyKillScore;
+                        sfx.stomp();
+                        document.getElementById('hud-score').innerText = score;
+                    } else {
+                        takeDamage();
+                    }
+                }
+            });
+
+            // 8. LÓGICA DO CHEFE (qualquer uma das 3 zonas de boss)
+            if (boss.active) {
+                boss.x += boss.vx;
+                if (boss.x < 150 || boss.x > 650) boss.vx *= -1;
+
+                boss.y = 290 + Math.sin(Date.now() / 300) * 15;
+
+                boss.shootTimer++;
+                if (boss.shootTimer % boss.shootInterval === 0) {
+                    boss.bullets.push({ x: boss.x, y: boss.y + 20, vy: boss.bulletSpeed, vx: (sonic.x - boss.x) * 0.01 });
+                }
+
+                for (let i = boss.bullets.length - 1; i >= 0; i--) {
+                    let b = boss.bullets[i];
+                    b.x += b.vx;
+                    b.y += b.vy;
+
+                    let dist = Math.hypot(sonic.x - b.x, sonic.y - b.y);
+                    if (dist < sonic.radius + 8) {
+                        takeDamage();
+                        boss.bullets.splice(i, 1);
+                    } else if (b.y > canvas.height) {
+                        boss.bullets.splice(i, 1);
+                    }
+                }
+
+                let distBoss = Math.hypot(sonic.x - boss.x, sonic.y - boss.y);
+                if (distBoss < sonic.radius + 30) {
+                    if (sonic.vy < 0 || sonic.isRolling || sonic.isSpinDashing) {
+                        boss.hp--;
+                        sonic.vy = -8;
+                        sonic.vx = -sonic.facing * 4;
+                        sfx.bossHit();
+                        if (boss.hp <= 0) {
+                            boss.active = false;
+                            const bossBonusOwned = SHOP_ITEMS.find(i => i.id === "bossBonus" && i.owned);
+                            score += 500 + (bossBonusOwned ? 300 : 0); // item "CAÇADOR DE CHEFES"
+                            document.getElementById('hud-score').innerText = score;
+
+                            const isLastZone = currentLevelIndex === TOTAL_ZONES - 1;
+                            if (isLastZone) {
+                                gameWon = true;
+                                endRun("won");
+                            } else {
+                                // Chefe intermediário derrotado: comemora e segue para a próxima zona
+                                sfx.win();
+                                loadLevel(currentLevelIndex + 1);
+                            }
+                        }
+                    } else {
+                        takeDamage();
+                    }
+                }
+            }
+        }
+
+        function takeDamage() {
+            if (invulnerableTimer > 0) return; // ignora dano durante invencibilidade
+            invulnerableTimer = 90;
+
+            if (rings > 0) {
+                rings = 0;
+                document.getElementById('hud-rings').innerText = rings;
+                sonic.vy = -6;
+                sonic.vx = -sonic.facing * 5;
+                sfx.hit();
+            } else {
+                loseLife();
+            }
+        }
+
+        let usedRevive = false; // controla se o item "SEGUNDA CHANCE" já foi usado nesta partida
+
+        function loseLife() {
+            lives--;
+            updateLivesHud();
+            sfx.hit();
+
+            if (lives <= 0) {
+                const secondChanceOwned = SHOP_ITEMS.find(i => i.id === "secondChance" && i.owned);
+                if (secondChanceOwned && !usedRevive) {
+                    // item "SEGUNDA CHANCE": revive uma vez por partida, no lugar
+                    // do Game Over, com 1 vida e metade dos anéis que tinha.
+                    usedRevive = true;
+                    lives = 1;
+                    updateLivesHud();
+                    rings = Math.floor(rings / 2);
+                    document.getElementById('hud-rings').innerText = rings;
+                    sonic.x = sonicStartState.x;
+                    sonic.y = sonicStartState.y;
+                    sonic.vx = 0;
+                    sonic.vy = 0;
+                    invulnerableTimer = 150;
+                    sfx.life();
+                    return;
+                }
+                gameOver = true;
+                endRun("gameover");
+            } else {
+                // Reinicia a fase atual com vidas restantes
+                sonic.x = sonicStartState.x;
+                sonic.y = sonicStartState.y;
+                sonic.vx = 0;
+                sonic.vy = 0;
+                rings = 0;
+                document.getElementById('hud-rings').innerText = rings;
+                invulnerableTimer = 90;
+            }
+        }
+
+        // Chamada ao fim de uma partida (derrota ou vitória): converte a pontuação
+        // final em moedas de loja e muda para a tela correspondente.
+        function endRun(finalState) {
+            const earned = coinsEarnedFromScore(score);
+            coins += earned;
+            lastRunCoinsEarned = earned;
+            gameState = finalState;
+            stopMusic();
+            if (finalState === "won") { sfx.win(); } else { sfx.gameOver(); }
+            savePlayerData(); // Supabase: persiste moedas, melhor pontuação e progresso ao fim da partida
+        }
+        let lastRunCoinsEarned = 0;
+
+        // --- RENDERIZAÇÃO ---
+        function drawCloud(x, y, scale) {
+            ctx.save();
+            ctx.globalAlpha = 0.75;
+            ctx.fillStyle = "#ffffff";
+            ctx.beginPath();
+            ctx.ellipse(x, y, 30 * scale, 16 * scale, 0, 0, Math.PI * 2);
+            ctx.ellipse(x + 25 * scale, y + 5 * scale, 22 * scale, 13 * scale, 0, 0, Math.PI * 2);
+            ctx.ellipse(x - 25 * scale, y + 5 * scale, 20 * scale, 12 * scale, 0, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
+        }
+
+        function render() {
+            const theme = zoneTheme(currentLevelIndex);
+
+            ctx.fillStyle = theme.sky;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // --- MENU ---
+            if (gameState === "menu") {
+                renderMenu(theme);
+                return;
+            }
+
+            // --- SELEÇÃO DE PERSONAGEM ---
+            if (gameState === "character_select") {
+                renderCharacterSelect(theme);
+                return;
+            }
+
+            // --- LOJA ---
+            if (gameState === "shop") {
+                renderShop(theme);
+                return;
+            }
+
+            ctx.save();
+            ctx.translate(-cameraX, 0);
+
+            // Nuvens (paralaxe — desenhadas com leve deslocamento em relação à câmera)
+            const parallaxOffset = cameraX * 0.4;
+            clouds.forEach(c => {
+                drawCloud(c.x - parallaxOffset + cameraX, c.y, c.scale);
+            });
+
+            // Chão (desenhado em segmentos para "abrir" buracos onde há pits)
+            const groundSegments = [];
+            let cursor = 0;
+            const sortedPits = [...pits].sort((a, b) => a.x - b.x);
+            sortedPits.forEach(p => {
+                if (p.x > cursor) groundSegments.push({ start: cursor, end: p.x });
+                cursor = Math.max(cursor, p.x + p.width);
+            });
+            if (cursor < levelWidth) groundSegments.push({ start: cursor, end: levelWidth });
+
+            groundSegments.forEach(seg => {
+                ctx.fillStyle = theme.top;
+                ctx.fillRect(seg.start, groundY, seg.end - seg.start, 15);
+                ctx.fillStyle = theme.bottom;
+                ctx.fillRect(seg.start, groundY + 15, seg.end - seg.start, canvas.height - groundY);
+            });
+
+            // Fundo do abismo dentro dos buracos (visual de profundidade)
+            sortedPits.forEach(p => {
+                ctx.fillStyle = "#000";
+                ctx.fillRect(p.x, groundY, p.width, canvas.height - groundY);
+            });
+
+            // Rampas
+            for (let ramp of ramps) {
+                ctx.beginPath();
+                ctx.moveTo(ramp.startX, groundY);
+                for (let x = ramp.startX; x <= ramp.endX; x += 5) {
+                    let progress = (x - ramp.startX) / (ramp.endX - ramp.startX);
+                    let y = groundY - Math.sin(progress * Math.PI) * (groundY - ramp.peakY);
+                    ctx.lineTo(x, y);
+                }
+                ctx.lineTo(ramp.endX, groundY);
+                ctx.fillStyle = theme.top;
+                ctx.fill();
+            }
+
+            // Picos (spikes) — triângulos cinza/vermelho
+            spikes.forEach(sp => {
+                ctx.beginPath();
+                ctx.moveTo(sp.x, sp.y);
+                ctx.lineTo(sp.x + sp.width / 2, sp.y - sp.height);
+                ctx.lineTo(sp.x + sp.width, sp.y);
+                ctx.closePath();
+                ctx.fillStyle = "#c0c0c0";
+                ctx.fill();
+                ctx.strokeStyle = "#800000";
+                ctx.lineWidth = 2;
+                ctx.stroke();
+            });
+
+            // Molas — base amarela + mola vermelha em espiral simplificada
+            springs.forEach(sp => {
+                ctx.fillStyle = "#ffcc00";
+                ctx.fillRect(sp.x - sp.width / 2, sp.y - 6, sp.width, 6);
+                ctx.strokeStyle = "#ff0000";
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                for (let i = 0; i < 4; i++) {
+                    const yy = sp.y - 6 - i * 4;
+                    ctx.moveTo(sp.x - sp.width / 2 + 2, yy);
+                    ctx.lineTo(sp.x + sp.width / 2 - 2, yy - 2);
+                }
+                ctx.stroke();
+            });
+
+            // Plataformas móveis
+            platforms.forEach(plat => {
+                ctx.fillStyle = "#888";
+                ctx.fillRect(plat.x - plat.width / 2, plat.y - plat.height / 2, plat.width, plat.height);
+                ctx.fillStyle = "#bbb";
+                ctx.fillRect(plat.x - plat.width / 2, plat.y - plat.height / 2, plat.width, 4);
+            });
+
+            // Bandeira de Chegada
+            if (!isBossZone(currentLevelIndex)) {
+                ctx.fillStyle = "#fff";
+                ctx.fillRect(finishFlag.x, finishFlag.y, 6, 40);
+                ctx.fillStyle = "#ff0000";
+                ctx.fillRect(finishFlag.x + 6, finishFlag.y, 20, 15);
+            }
+
+            // Anéis
+            let ringFrame = Math.floor(Date.now() / 120) % 4;
+            ringObjects.forEach(ring => {
+                if (!ring.collected) {
+                    if (sprites.ring) {
+                        ctx.drawImage(sprites.ring, ring.x - 10, ring.y - 10, 20, 20);
+                    } else {
+                        ctx.save();
+                        ctx.translate(ring.x, ring.y);
+                        ctx.fillStyle = "#ffeb3b";
+                        let widthFactor = [1, 0.6, 0.2, 0.6][ringFrame];
+                        ctx.beginPath();
+                        ctx.ellipse(0, 0, 8 * widthFactor, 10, 0, 0, Math.PI * 2);
+                        ctx.fill();
+                        ctx.restore();
+                    }
+                }
+            });
+
+            // Inimigos
+            const enemySpriteMap = { shooter: sprites.enemyShooter, melee: sprites.enemyMelee, flyer: sprites.enemyFlyer };
+            const enemyFallbackColor = { shooter: "#e53935", melee: "#2e7d32", flyer: "#ff9800" };
+
+            enemies.forEach(enemy => {
+                if (!enemy.alive) return;
+
+                const spr = enemySpriteMap[enemy.type];
+                const facingRight = enemy.vx > 0 || (enemy.charging && enemy.chargeDir > 0);
+
+                ctx.save();
+                if (spr) {
+                    if (facingRight) {
+                        ctx.translate(enemy.x + 16, enemy.y - 10);
+                        ctx.scale(-1, 1);
+                        ctx.drawImage(spr, -16, 0, enemy.width, enemy.height);
+                    } else {
+                        ctx.drawImage(spr, enemy.x - 16, enemy.y - 10, enemy.width, enemy.height);
+                    }
+                } else {
+                    ctx.fillStyle = enemyFallbackColor[enemy.type] || "#e53935";
+                    ctx.fillRect(enemy.x - 16, enemy.y - 10, enemy.width, enemy.height);
+                }
+                ctx.restore();
+
+                // Indicador visual: verde "carregando" ataque pisca em vermelho antes de investir
+                if (enemy.type === "melee" && enemy.charging) {
+                    ctx.strokeStyle = "#ff1744";
+                    ctx.lineWidth = 2;
+                    ctx.strokeRect(enemy.x - 18, enemy.y - 12, enemy.width + 4, enemy.height + 4);
+                }
+
+                // Projéteis do inimigo (vermelho e laranja)
+                if (enemy.bullets && enemy.bullets.length) {
+                    ctx.fillStyle = enemy.type === "flyer" ? "#ffb300" : "#ff5252";
+                    enemy.bullets.forEach(b => {
+                        ctx.beginPath();
+                        ctx.arc(b.x, b.y, 5, 0, Math.PI * 2);
+                        ctx.fill();
+                    });
+                }
+            });
+
+            // CHEFE (boss1, boss2 ou bossFinal)
+            if (boss.active) {
+                if (sprites.boss) {
+                    ctx.drawImage(sprites.boss, boss.x - 30, boss.y - 30, 60, 60);
+                } else {
+                    ctx.fillStyle = boss.bodyColor;
+                    ctx.beginPath();
+                    ctx.arc(boss.x, boss.y, 30, 0, Math.PI);
+                    ctx.fill();
+
+                    ctx.fillStyle = boss.headColor;
+                    ctx.beginPath();
+                    ctx.arc(boss.x, boss.y - 10, 12, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    ctx.fillStyle = boss.armColor;
+                    ctx.fillRect(boss.x - 18, boss.y - 10, 36, 6);
+                }
+
+                // Nome do chefe + Barra de Vida
+                ctx.textAlign = "center";
+                ctx.fillStyle = "#fff";
+                ctx.font = 'bold 12px "Courier New"';
+                ctx.fillText(boss.name, boss.x, boss.y - 52);
+
+                ctx.fillStyle = "#000";
+                ctx.fillRect(boss.x - 25, boss.y - 45, 50, 6);
+                ctx.fillStyle = "#ff0000";
+                ctx.fillRect(boss.x - 25, boss.y - 45, (boss.hp / boss.maxHp) * 50, 6);
+
+                ctx.fillStyle = boss.bulletColor;
+                boss.bullets.forEach(b => {
+                    ctx.beginPath();
+                    ctx.arc(b.x, b.y, 6, 0, Math.PI * 2);
+                    ctx.fill();
+                });
+            }
+
+            // Personagem jogável (pisca durante invencibilidade)
+            const blinking = invulnerableTimer > 0 && Math.floor(invulnerableTimer / 5) % 2 === 0;
+            const playerChar = CHARACTERS[selectedCharacter];
+            if (!blinking) {
+                ctx.save();
+                ctx.translate(sonic.x, sonic.y);
+
+                const rolling = sonic.isRolling || sonic.isSpinDashing;
+                const rollSprite = sprites[playerChar.rollSpriteKey];
+                // Para o Tails: usa o sprite de VOO enquanto ele está voando, e o
+                // sprite de ANDANDO enquanto está no chão/pulando sem voar.
+                // Para os demais personagens, spriteKey continua sendo o único sprite "parado".
+                let idleSprite;
+                if (playerChar.canFly && playerChar.walkSpriteKey && sprites[playerChar.walkSpriteKey] && !sonic.isFlying) {
+                    idleSprite = sprites[playerChar.walkSpriteKey];
+                } else {
+                    idleSprite = sprites[playerChar.spriteKey];
+                }
+                // Usa o sprite específico de "rolando" se existir; senão cai no sprite parado girando
+                const usingDedicatedRollSprite = rolling && !!rollSprite;
+                const spriteToUse = usingDedicatedRollSprite ? rollSprite : idleSprite;
+
+                if (spriteToUse) {
+                    // O sprite dedicado de bola já é redondo — não gira, só troca de pose.
+                    // Sem sprite dedicado, gira o sprite parado para simular o rolamento.
+                    ctx.rotate((rolling && !usingDedicatedRollSprite) ? sonic.angle : 0);
+                    ctx.scale(sonic.facing, 1);
+                    ctx.imageSmoothingEnabled = false;
+                    ctx.drawImage(spriteToUse, -16, -20, 32, 32);
+                    ctx.imageSmoothingEnabled = true;
+                } else if (rolling) {
+                    ctx.rotate(sonic.angle);
+                    ctx.fillStyle = playerChar.color;
+                    ctx.beginPath();
+                    ctx.arc(0, 0, sonic.radius, 0, Math.PI * 2);
+                    ctx.fill();
+                } else {
+                    ctx.scale(sonic.facing, 1);
+                    ctx.fillStyle = playerChar.color;
+                    ctx.beginPath();
+                    ctx.arc(0, -4, 12, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.fillStyle = "#ffcc99";
+                    ctx.beginPath();
+                    ctx.arc(4, -2, 6, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.fillStyle = "#ff0000";
+                    ctx.fillRect(-6, 8, 16, 8);
+                }
+                ctx.restore();
+
+                // Rastro visual de voo do Tails
+                if (sonic.isFlying) {
+                    ctx.save();
+                    ctx.globalAlpha = 0.4;
+                    ctx.fillStyle = "#ffcc80";
+                    ctx.beginPath();
+                    ctx.ellipse(sonic.x, sonic.y + 18, 10, 5, 0, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.restore();
+                }
+
+                // Barra de combustível de voo, flutuando acima do personagem (só para o Tails)
+                if (playerChar.canFly) {
+                    const barW = 30, barH = 4;
+                    const fuelPct = sonic.flyFuel / sonic.flyFuelMax;
+                    ctx.fillStyle = "rgba(0,0,0,0.5)";
+                    ctx.fillRect(sonic.x - barW / 2, sonic.y - 34, barW, barH);
+                    ctx.fillStyle = fuelPct > 0.3 ? "#00e5ff" : "#ff5252";
+                    ctx.fillRect(sonic.x - barW / 2, sonic.y - 34, barW * fuelPct, barH);
+                }
+            }
+
+            ctx.restore();
+
+            if (gameState === "paused") {
+                renderPauseOverlay();
+            }
+
+            if (gameState === "gameover") {
+                ctx.fillStyle = "rgba(0, 0, 0, 0.85)";
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = "#ff1744";
+                ctx.font = '30px "Courier New"';
+                ctx.textAlign = "center";
+                ctx.fillText("GAME OVER", canvas.width / 2, canvas.height / 2 - 40);
+                ctx.font = '16px "Courier New"';
+                ctx.fillStyle = "#fff";
+                ctx.fillText(`Pontuação: ${score}`, canvas.width / 2, canvas.height / 2 - 10);
+                ctx.fillStyle = "#ffeb3b";
+                ctx.fillText(`+${lastRunCoinsEarned} moedas (total: ${coins})`, canvas.width / 2, canvas.height / 2 + 15);
+                ctx.fillStyle = "#fff";
+                ctx.fillText("Pressione ESPAÇO ou ENTER para jogar novamente", canvas.width / 2, canvas.height / 2 + 45);
+                drawShopButton();
+            }
+
+            if (gameState === "won") {
+                ctx.fillStyle = "rgba(0, 0, 0, 0.85)";
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = "#ffeb3b";
+                ctx.font = '30px "Courier New"';
+                ctx.textAlign = "center";
+                ctx.fillText("PARABÉNS! ZEROU O JOGO!", canvas.width / 2, canvas.height / 2 - 45);
+                ctx.fillStyle = "#fff";
+                ctx.font = '18px "Courier New"';
+                ctx.fillText(`Pontuação Final: ${score}`, canvas.width / 2, canvas.height / 2 - 12);
+                ctx.fillStyle = "#ffeb3b";
+                ctx.font = '14px "Courier New"';
+                ctx.fillText(`+${lastRunCoinsEarned} moedas (total: ${coins})`, canvas.width / 2, canvas.height / 2 + 12);
+                ctx.fillStyle = "#fff";
+                ctx.fillText("Pressione ESPAÇO ou ENTER para jogar novamente", canvas.width / 2, canvas.height / 2 + 38);
+                drawShopButton();
+            }
+        }
+
+        // Botão "LOJA [L]" desenhado nas telas de menu / fim de jogo
+        function drawShopButton() {
+            const btn = shopButtonRect();
+            ctx.fillStyle = "#7b1fa2";
+            ctx.fillRect(btn.x, btn.y, btn.w, btn.h);
+            ctx.strokeStyle = "#fff";
+            ctx.lineWidth = 2;
+            ctx.strokeRect(btn.x, btn.y, btn.w, btn.h);
+            ctx.fillStyle = "#fff";
+            ctx.font = 'bold 14px "Courier New"';
+            ctx.textAlign = "center";
+            ctx.fillText("🛒 LOJA [L]", btn.x + btn.w / 2, btn.y + 22);
+        }
+
+        function renderMenu(theme) {
+            // Fundo com leve gradiente usando o tema da fase 1
+            const grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            grad.addColorStop(0, theme.sky);
+            grad.addColorStop(1, "#000814");
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Nuvens decorativas fixas
+            drawCloud(150, 100, 1);
+            drawCloud(600, 140, 0.8);
+            drawCloud(400, 70, 1.2);
+
+            ctx.textAlign = "center";
+            ctx.fillStyle = "#ffeb3b";
+            ctx.font = 'bold 46px "Courier New"';
+            ctx.save();
+            ctx.translate(canvas.width / 2, canvas.height / 2 - 80);
+            ctx.fillText("SONIC", 0, 0);
+            ctx.restore();
+
+            ctx.fillStyle = "#00ffcc";
+            ctx.font = '20px "Courier New"';
+            ctx.fillText("13 FASES + 3 CHEFES", canvas.width / 2, canvas.height / 2 - 35);
+
+            ctx.fillStyle = "#ffeb3b";
+            ctx.font = '15px "Courier New"';
+            ctx.fillText(`💰 MOEDAS: ${coins}`, canvas.width / 2, canvas.height / 2 - 5);
+
+            // "Botão" pulsante
+            const pulse = (Math.sin(Date.now() / 300) + 1) / 2;
+            ctx.fillStyle = `rgba(255,255,255,${0.6 + pulse * 0.4})`;
+            ctx.font = '18px "Courier New"';
+            ctx.fillText("Pressione ESPAÇO, ENTER ou clique para escolher personagem", canvas.width / 2, canvas.height / 2 + 40);
+
+            ctx.fillStyle = "#aaa";
+            ctx.font = '13px "Courier New"';
+            ctx.fillText("Mover [A/D ou SETAS] · Pular [ESPAÇO/W] · Spin Dash [BAIXO + ESPAÇO]", canvas.width / 2, canvas.height / 2 + 90);
+
+            drawShopButton();
+            drawMultiplayerButton();
+        }
+
+        // Botão "🎮 2 JOGADORES (LOCAL)" desenhado no menu, ao lado do botão de loja
+        function multiplayerButtonRect() {
+            return { x: canvas.width / 2 - 100, y: canvas.height - 100, w: 200, h: 32 };
+        }
+        function drawMultiplayerButton() {
+            const btn = multiplayerButtonRect();
+            ctx.fillStyle = "#00695c";
+            ctx.fillRect(btn.x, btn.y, btn.w, btn.h);
+            ctx.strokeStyle = "#fff";
+            ctx.lineWidth = 2;
+            ctx.strokeRect(btn.x, btn.y, btn.w, btn.h);
+            ctx.fillStyle = "#fff";
+            ctx.font = 'bold 13px "Courier New"';
+            ctx.textAlign = "center";
+            ctx.fillText("🎮 2 JOGADORES (LOCAL)", btn.x + btn.w / 2, btn.y + 21);
+        }
+        function isInsideMultiplayerButton(x, y) {
+            const btn = multiplayerButtonRect();
+            return x >= btn.x && x <= btn.x + btn.w && y >= btn.y && y <= btn.y + btn.h;
+        }
+
+        function renderCharacterSelect(theme) {
+            const grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            grad.addColorStop(0, theme.sky);
+            grad.addColorStop(1, "#000814");
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            drawCloud(120, 80, 0.8);
+            drawCloud(650, 100, 0.9);
+
+            ctx.textAlign = "center";
+            ctx.fillStyle = "#ffeb3b";
+            ctx.font = 'bold 28px "Courier New"';
+            ctx.fillText("ESCOLHA SEU PERSONAGEM", canvas.width / 2, 70);
+
+            const cardWidth = 200;
+            const cardHeight = 260;
+            const spacing = 40;
+            const totalWidth = cardWidth * 3 + spacing * 2;
+            const startX = (canvas.width - totalWidth) / 2;
+            const cardY = 110;
+
+            characterOrder.forEach((charKey, i) => {
+                const char = CHARACTERS[charKey];
+                const cx = startX + i * (cardWidth + spacing);
+                const isSelected = selectedCharacter === charKey;
+
+                // Cartão
+                ctx.fillStyle = isSelected ? "rgba(255,255,255,0.18)" : "rgba(0,0,0,0.35)";
+                ctx.fillRect(cx, cardY, cardWidth, cardHeight);
+                ctx.strokeStyle = isSelected ? "#ffeb3b" : "rgba(255,255,255,0.3)";
+                ctx.lineWidth = isSelected ? 4 : 2;
+                ctx.strokeRect(cx, cardY, cardWidth, cardHeight);
+
+                // Sprite (ou fallback colorido) do personagem, ampliado
+                const spr = sprites[char.spriteKey];
+                const spriteSize = 80;
+                const spriteX = cx + cardWidth / 2 - spriteSize / 2;
+                const spriteY = cardY + 30;
+                if (spr) {
+                    ctx.imageSmoothingEnabled = false;
+                    ctx.drawImage(spr, spriteX, spriteY, spriteSize, spriteSize);
+                    ctx.imageSmoothingEnabled = true;
+                } else {
+                    ctx.fillStyle = char.color;
+                    ctx.beginPath();
+                    ctx.arc(cx + cardWidth / 2, spriteY + spriteSize / 2, spriteSize / 2.5, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+
+                // Nome
+                ctx.fillStyle = isSelected ? "#ffeb3b" : "#fff";
+                ctx.font = 'bold 20px "Courier New"';
+                ctx.fillText(char.name, cx + cardWidth / 2, cardY + 145);
+
+                // Descrição (multi-linha)
+                ctx.fillStyle = "#ddd";
+                ctx.font = '12px "Courier New"';
+                const lines = char.description.split("\n");
+                lines.forEach((line, li) => {
+                    ctx.fillText(line, cx + cardWidth / 2, cardY + 170 + li * 16);
+                });
+
+                // Indicador de seleção
+                if (isSelected) {
+                    ctx.fillStyle = "#00ffcc";
+                    ctx.font = 'bold 13px "Courier New"';
+                    ctx.fillText("▶ SELECIONADO ◀", cx + cardWidth / 2, cardY + cardHeight - 15);
+                }
+            });
+
+            ctx.fillStyle = "#aaa";
+            ctx.font = '13px "Courier New"';
+            ctx.fillText("[A/D ou SETAS] Trocar · [ESPAÇO/ENTER] Confirmar · Clique no personagem", canvas.width / 2, cardY + cardHeight + 45);
+        }
+
+        // Ícones simples desenhados para cada item da loja
+        function drawShopIcon(icon, cx, cy, color) {
+            ctx.save();
+            ctx.translate(cx, cy);
+            if (icon === "life") {
+                // corazão simples
+                ctx.fillStyle = color;
+                ctx.beginPath();
+                ctx.moveTo(0, 14);
+                ctx.bezierCurveTo(-24, -6, -10, -24, 0, -8);
+                ctx.bezierCurveTo(10, -24, 24, -6, 0, 14);
+                ctx.fill();
+            } else if (icon === "ring") {
+                ctx.strokeStyle = color;
+                ctx.lineWidth = 6;
+                ctx.beginPath();
+                ctx.ellipse(0, 0, 16, 20, 0, 0, Math.PI * 2);
+                ctx.stroke();
+            } else if (icon === "shield") {
+                ctx.fillStyle = color;
+                ctx.beginPath();
+                ctx.moveTo(0, -22);
+                ctx.lineTo(18, -12);
+                ctx.lineTo(18, 8);
+                ctx.quadraticCurveTo(0, 26, -18, 8);
+                ctx.lineTo(-18, -12);
+                ctx.closePath();
+                ctx.fill();
+            } else if (icon === "magnet") {
+                // Ímã em ferradura: duas pernas + ponteiras coloridas
+                ctx.strokeStyle = color;
+                ctx.lineWidth = 8;
+                ctx.lineCap = "round";
+                ctx.beginPath();
+                ctx.arc(0, -2, 14, Math.PI * 0.15, Math.PI * 0.85, false);
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.moveTo(-14, -2);
+                ctx.lineTo(-14, 16);
+                ctx.moveTo(14, -2);
+                ctx.lineTo(14, 16);
+                ctx.stroke();
+                ctx.fillStyle = "#e53935";
+                ctx.fillRect(-18, 12, 8, 8);
+                ctx.fillStyle = "#1e88e5";
+                ctx.fillRect(10, 12, 8, 8);
+            } else if (icon === "coin") {
+                // Moeda com "x2" no centro
+                ctx.fillStyle = color;
+                ctx.beginPath();
+                ctx.arc(0, 0, 18, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.strokeStyle = "#8d6e00";
+                ctx.lineWidth = 2;
+                ctx.stroke();
+                ctx.fillStyle = "#5c4400";
+                ctx.font = 'bold 14px "Courier New"';
+                ctx.textAlign = "center";
+                ctx.fillText("x2", 0, 5);
+            } else if (icon === "wing") {
+                // Asa estilizada do Tails
+                ctx.fillStyle = color;
+                ctx.beginPath();
+                ctx.moveTo(-16, 10);
+                ctx.quadraticCurveTo(-4, -22, 20, -14);
+                ctx.quadraticCurveTo(2, -8, 4, 4);
+                ctx.quadraticCurveTo(-2, 2, -16, 10);
+                ctx.closePath();
+                ctx.fill();
+            } else if (icon === "ring2x") {
+                // Anel com "x2" ao lado
+                ctx.strokeStyle = color;
+                ctx.lineWidth = 6;
+                ctx.beginPath();
+                ctx.ellipse(-6, 0, 13, 17, 0, 0, Math.PI * 2);
+                ctx.stroke();
+                ctx.fillStyle = color;
+                ctx.font = 'bold 13px "Courier New"';
+                ctx.textAlign = "center";
+                ctx.fillText("x2", 16, 5);
+            } else if (icon === "target") {
+                // Alvo (círculos concêntricos + mira)
+                ctx.strokeStyle = color;
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.arc(0, 0, 16, 0, Math.PI * 2);
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.arc(0, 0, 8, 0, Math.PI * 2);
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.moveTo(0, -22); ctx.lineTo(0, -12);
+                ctx.moveTo(0, 12); ctx.lineTo(0, 22);
+                ctx.moveTo(-22, 0); ctx.lineTo(-12, 0);
+                ctx.moveTo(12, 0); ctx.lineTo(22, 0);
+                ctx.stroke();
+            } else if (icon === "revive") {
+                // Coração com "+" — segunda chance
+                ctx.fillStyle = color;
+                ctx.beginPath();
+                ctx.moveTo(0, 14);
+                ctx.bezierCurveTo(-24, -6, -10, -24, 0, -8);
+                ctx.bezierCurveTo(10, -24, 24, -6, 0, 14);
+                ctx.fill();
+                ctx.strokeStyle = "#fff";
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.moveTo(-6, -4); ctx.lineTo(6, -4);
+                ctx.moveTo(0, -10); ctx.lineTo(0, 2);
+                ctx.stroke();
+            } else if (icon === "lightning") {
+                // Raio (tênis de velocidade)
+                ctx.fillStyle = color;
+                ctx.beginPath();
+                ctx.moveTo(4, -24);
+                ctx.lineTo(-14, 4);
+                ctx.lineTo(-2, 4);
+                ctx.lineTo(-6, 24);
+                ctx.lineTo(16, -6);
+                ctx.lineTo(2, -6);
+                ctx.closePath();
+                ctx.fill();
+            } else if (icon === "arrowup") {
+                // Seta para cima (pulo reforçado)
+                ctx.fillStyle = color;
+                ctx.beginPath();
+                ctx.moveTo(0, -22);
+                ctx.lineTo(16, -2);
+                ctx.lineTo(6, -2);
+                ctx.lineTo(6, 22);
+                ctx.lineTo(-6, 22);
+                ctx.lineTo(-6, -2);
+                ctx.lineTo(-16, -2);
+                ctx.closePath();
+                ctx.fill();
+            } else if (icon === "crown") {
+                // Coroa (bônus por derrotar chefes)
+                ctx.fillStyle = color;
+                ctx.beginPath();
+                ctx.moveTo(-18, 12);
+                ctx.lineTo(-18, -4);
+                ctx.lineTo(-9, 6);
+                ctx.lineTo(0, -14);
+                ctx.lineTo(9, 6);
+                ctx.lineTo(18, -4);
+                ctx.lineTo(18, 12);
+                ctx.closePath();
+                ctx.fill();
+                ctx.fillRect(-18, 12, 36, 6);
+            }
+            ctx.restore();
+        }
+
+        function renderShop(theme) {
+            const grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            grad.addColorStop(0, "#1a0033");
+            grad.addColorStop(1, "#000814");
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            ctx.textAlign = "center";
+            ctx.fillStyle = "#ffeb3b";
+            ctx.font = 'bold 28px "Courier New"';
+            ctx.fillText("LOJA", canvas.width / 2, 55);
+
+            ctx.fillStyle = "#00ffcc";
+            ctx.font = '15px "Courier New"';
+            ctx.fillText(`💰 Suas moedas: ${coins}`, canvas.width / 2, 72);
+
+            const totalPages = shopTotalPages();
+            if (totalPages > 1) {
+                ctx.fillStyle = "#aaa";
+                ctx.font = '12px "Courier New"';
+                ctx.fillText(`Página ${shopPage + 1} / ${totalPages}`, canvas.width / 2, 90);
+
+                // Setas de navegação
+                const leftArrow = shopArrowRect("left");
+                const rightArrow = shopArrowRect("right");
+                [leftArrow, rightArrow].forEach((arrow, i) => {
+                    ctx.fillStyle = "#7b1fa2";
+                    ctx.fillRect(arrow.x, arrow.y, arrow.w, arrow.h);
+                    ctx.strokeStyle = "#fff";
+                    ctx.lineWidth = 2;
+                    ctx.strokeRect(arrow.x, arrow.y, arrow.w, arrow.h);
+                    ctx.fillStyle = "#fff";
+                    ctx.font = 'bold 16px "Courier New"';
+                    ctx.fillText(i === 0 ? "◀" : "▶", arrow.x + arrow.w / 2, arrow.y + 20);
+                });
+            }
+
+            shopPageItems().forEach((item, i) => {
+                const card = shopCardRect(i);
+                const centerX = card.x + card.w / 2;
+
+                ctx.fillStyle = item.owned ? "rgba(0,255,150,0.12)" : "rgba(255,255,255,0.08)";
+                ctx.fillRect(card.x, card.y, card.w, card.h);
+                ctx.strokeStyle = item.owned ? "#00e676" : "rgba(255,255,255,0.4)";
+                ctx.lineWidth = 3;
+                ctx.strokeRect(card.x, card.y, card.w, card.h);
+
+                drawShopIcon(item.icon, centerX, card.y + 34, item.color);
+
+                ctx.fillStyle = "#fff";
+                ctx.font = 'bold 13px "Courier New"';
+                ctx.fillText(item.name, centerX, card.y + 68);
+
+                ctx.fillStyle = "#ccc";
+                ctx.font = '10px "Courier New"';
+                item.desc.split("\n").forEach((line, li) => {
+                    ctx.fillText(line, centerX, card.y + 86 + li * 13);
+                });
+
+                ctx.font = 'bold 12px "Courier New"';
+                if (item.owned) {
+                    ctx.fillStyle = "#00e676";
+                    ctx.fillText("✔ COMPRADO", centerX, card.y + card.h - 12);
+                } else {
+                    ctx.fillStyle = coins >= item.cost ? "#ffeb3b" : "#ff5252";
+                    ctx.fillText(`💰 ${item.cost}  [${i + 1}]`, centerX, card.y + card.h - 12);
+                }
+            });
+
+            // Botão Voltar
+            const backBtn = shopBackButtonRect();
+            ctx.fillStyle = "#444";
+            ctx.fillRect(backBtn.x, backBtn.y, backBtn.w, backBtn.h);
+            ctx.strokeStyle = "#fff";
+            ctx.lineWidth = 2;
+            ctx.strokeRect(backBtn.x, backBtn.y, backBtn.w, backBtn.h);
+            ctx.fillStyle = "#fff";
+            ctx.font = 'bold 13px "Courier New"';
+            ctx.fillText("◀ VOLTAR [ESC]", backBtn.x + backBtn.w / 2, backBtn.y + 20);
+
+            // Mensagem temporária (compra confirmada / moedas insuficientes)
+            if (shopMessageTimer > 0) {
+                ctx.fillStyle = shopMessage.includes("insuficientes") ? "#ff5252" : "#00e676";
+                ctx.font = 'bold 14px "Courier New"';
+                ctx.globalAlpha = Math.min(1, shopMessageTimer / 30);
+                ctx.fillText(shopMessage, canvas.width / 2, backBtn.y + backBtn.h + 14);
+                ctx.globalAlpha = 1;
+            }
+        }
+
+        function renderPauseOverlay() {
+            ctx.save();
+            ctx.translate(cameraX, 0); // desfaz o translate do mundo (overlay é em tela fixa)
+            ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = "#fff";
+            ctx.font = 'bold 32px "Courier New"';
+            ctx.textAlign = "center";
+            ctx.fillText("PAUSADO", canvas.width / 2, canvas.height / 2 - 10);
+            ctx.font = '16px "Courier New"';
+            ctx.fillStyle = "#ccc";
+            ctx.fillText("Pressione [P] para continuar", canvas.width / 2, canvas.height / 2 + 25);
+            ctx.restore();
+        }
+
+        /* =====================================================================
+           MODO 2 JOGADORES (LOCAL) — tela dividida, câmeras independentes.
+           Reaproveita os temas visuais e sprites já existentes, mas com uma
+           física/fase simplificadas e isoladas do modo solo (prefixo "mp_"),
+           para não arriscar interferir na lógica principal do jogo.
+           P1 = Sonic (Setas + Enter) | P2 = Tails (WASD + Espaço)
+           ===================================================================== */
+        const MP_STAGE_COUNT = 4;
+        const MP_GROUND_Y = 380;
+        let mp_currentStage = 0;
+        let mp_levelWidth = 2600;
+        let mp_ringObjects = [];
+        let mp_enemies = [];
+        let mp_ramps = [];
+        let mp_clouds = [];
+        let mp_finishX = 2400;
+        let mp_active = false; // true enquanto o modo 2 jogadores está em andamento
+
+        function mp_makePlayer(startX, charKey, controls) {
+            return {
+                charKey, controls,
+                x: startX, y: 300, radius: 16,
+                vx: 0, vy: 0,
+                facing: 1, angle: 0,
+                isGrounded: false, isRolling: false,
+                isCrouching: false, isSpinDashing: false, spinDashCharge: 0,
+                rings: 0, score: 0, lives: 3,
+                invulnerableTimer: 60,
+                cameraX: 0,
+                // Voo (usado só pelo Tails/P2)
+                isFlying: false, flyFuel: 100, flyFuelMax: 100
+            };
+        }
+
+        const mp_player1 = mp_makePlayer(80, "sonic", {
+            left: "ArrowLeft", right: "ArrowRight", up: "ArrowUp", down: "ArrowDown", jump: "Enter"
+        });
+        const mp_player2 = mp_makePlayer(80, "tails", {
+            left: "a", right: "d", up: "w", down: "s", jump: " "
+        });
+
+        function mp_generateClouds() {
+            mp_clouds = [];
+            for (let i = 0; i < 12; i++) {
+                mp_clouds.push({
+                    x: Math.random() * mp_levelWidth * 1.3,
+                    y: 30 + Math.random() * 100,
+                    scale: 0.5 + Math.random() * 0.8,
+                    speed: 0.15 + Math.random() * 0.15
+                });
+            }
+        }
+
+        function mp_loadStage(stageIdx) {
+            mp_currentStage = stageIdx;
+            mp_levelWidth = 2200 + stageIdx * 350;
+            mp_finishX = mp_levelWidth - 150;
+
+            [mp_player1, mp_player2].forEach(p => {
+                p.x = 80; p.y = 300; p.vx = 0; p.vy = 0;
+                p.invulnerableTimer = 60;
+            });
+
+            mp_ringObjects = [];
+            for (let x = 300; x < mp_levelWidth - 300; x += 160 + Math.random() * 180) {
+                mp_ringObjects.push({ x, y: 340, collected: false });
+                mp_ringObjects.push({ x: x + 36, y: 340, collected: false });
+            }
+
+            mp_enemies = [];
+            const enemyCount = 3 + stageIdx * 2;
+            for (let i = 0; i < enemyCount; i++) {
+                const ex = 450 + (i * (mp_levelWidth - 650) / enemyCount);
+                const typeRoll = i % 3;
+                if (typeRoll === 0) {
+                    mp_enemies.push({ type: "shooter", x: ex, y: 360, width: 32, height: 20, vx: -0.6, startX: ex - 60, endX: ex + 60, alive: true, shootTimer: Math.floor(Math.random()*90), bullets: [] });
+                } else if (typeRoll === 1) {
+                    mp_enemies.push({ type: "melee", x: ex, y: 360, width: 32, height: 20, vx: -1.3, startX: ex - 80, endX: ex + 80, alive: true, charging: false, chargeCooldown: 0 });
+                } else {
+                    mp_enemies.push({ type: "flyer", x: ex, y: 220 + Math.random()*50, width: 32, height: 22, alive: true, baseY: 220 + Math.random()*50, flyPhase: Math.random()*Math.PI*2, vx: -1.0, startX: ex - 100, endX: ex + 100, shootTimer: Math.floor(Math.random()*100), bullets: [] });
+                }
+            }
+
+            mp_ramps = [{ startX: 700, endX: 900, peakY: 240 }];
+
+            mp_generateClouds();
+        }
+
+        function mp_resetAll() {
+            [mp_player1, mp_player2].forEach(p => {
+                p.rings = 0; p.score = 0; p.lives = 3;
+                p.isFlying = false; p.flyFuel = p.flyFuelMax;
+                p.vx = 0; p.vy = 0;
+            });
+            mp_loadStage(0);
+        }
+
+        function startMultiplayerGame() {
+            mp_active = true;
+            mp_resetAll();
+            gameState = "multiplayer";
+            startMusic("normal");
+            getAudioCtx();
+        }
+
+        function mp_exitToMenu() {
+            mp_active = false;
+            stopMusic();
+            gameState = "menu";
+        }
+
+        // Física de um jogador do modo 2P — mesma base do modo solo (spin dash
+        // incluído), mas ainda sem picos/buracos/plataformas móveis/molas.
+        function mp_updatePlayer(p) {
+            const character = CHARACTERS[p.charKey];
+            const accel = 0.25, friction = 0.96, gravity = 0.5, jumpForce = -11, maxSpeed = 8;
+
+            if (p.invulnerableTimer > 0) p.invulnerableTimer--;
+
+            // Agachar / Spin Dash — segura BAIXO parado no chão, aperta pular pra carregar
+            if (p.isGrounded && keys[p.controls.down]) {
+                if (Math.abs(p.vx) < 0.5) {
+                    p.vx = 0;
+                    p.isCrouching = true;
+                    if (keys[p.controls.jump]) {
+                        if (p.spinDashCharge === 0) sfx.jump();
+                        p.isSpinDashing = true;
+                        p.spinDashCharge = Math.min(p.spinDashCharge + 1, 5);
+                    }
+                } else {
+                    p.isRolling = true;
+                }
+            } else {
+                p.isCrouching = false;
+            }
+
+            if (!p.isSpinDashing && !p.isCrouching) {
+                if (keys[p.controls.right]) { if (p.vx < maxSpeed) p.vx += accel; p.facing = 1; }
+                else if (keys[p.controls.left]) { if (p.vx > -maxSpeed) p.vx -= accel; p.facing = -1; }
+                else { p.vx *= friction; }
+            }
+
+            if (p.isRolling) {
+                p.vx *= 0.98;
+                if (Math.abs(p.vx) < 0.5) p.isRolling = false;
+            }
+
+            if (keys[p.controls.jump] && p.isGrounded && !p.isCrouching) {
+                p.vy = jumpForce;
+                p.isGrounded = false;
+                p.isRolling = true;
+                sfx.jump();
+            }
+
+            // Voo (só personagens com canFly, ex.: Tails/P2)
+            const holdingJump = keys[p.controls.jump];
+            if (character.canFly && !p.isGrounded && holdingJump && p.flyFuel > 0) {
+                p.isFlying = true;
+                p.vy = Math.max(p.vy - 0.9, -2.2);
+                p.flyFuel = Math.max(0, p.flyFuel - 1);
+            } else {
+                p.isFlying = false;
+            }
+            if (p.isGrounded) p.flyFuel = Math.min(p.flyFuelMax, p.flyFuel + 2);
+
+            p.vy += gravity * (p.isFlying ? 0.35 : 1);
+            p.x += p.vx;
+            p.y += p.vy;
+
+            if (p.x - p.radius < 0) { p.x = p.radius; p.vx = 0; }
+            if (p.x + p.radius > mp_levelWidth) { p.x = mp_levelWidth - p.radius; p.vx = 0; }
+
+            let currentGroundY = MP_GROUND_Y;
+            for (const ramp of mp_ramps) {
+                if (p.x >= ramp.startX && p.x <= ramp.endX) {
+                    const progress = (p.x - ramp.startX) / (ramp.endX - ramp.startX);
+                    currentGroundY = MP_GROUND_Y - Math.sin(progress * Math.PI) * (MP_GROUND_Y - ramp.peakY);
+                }
+            }
+
+            if (p.y + p.radius >= currentGroundY) {
+                p.y = currentGroundY - p.radius;
+                p.vy = 0;
+                p.isGrounded = true;
+                if (Math.abs(p.vx) < 0.5) p.isRolling = false;
+            } else {
+                p.isGrounded = false;
+            }
+
+            p.angle += p.vx * 0.15;
+
+            p.cameraX = p.x - canvas.width / 3;
+            p.cameraX = Math.max(0, Math.min(mp_levelWidth - canvas.width, p.cameraX));
+
+            // Anéis
+            mp_ringObjects.forEach(ring => {
+                if (!ring.collected) {
+                    const dist = Math.hypot(p.x - ring.x, p.y - ring.y);
+                    if (dist < p.radius + 10) {
+                        ring.collected = true;
+                        p.rings++;
+                        p.score += 100;
+                        sfx.ring();
+                    }
+                }
+            });
+
+            // Passar de fase (qualquer um dos 2 cruzando a bandeira avança para os dois)
+            if (p.x >= mp_finishX) {
+                if (mp_currentStage < MP_STAGE_COUNT - 1) {
+                    mp_loadStage(mp_currentStage + 1);
+                } else {
+                    mp_finishGame();
+                }
+            }
+        }
+
+        function mp_takeDamage(p) {
+            if (p.invulnerableTimer > 0) return;
+            p.invulnerableTimer = 90;
+            if (p.rings > 0) {
+                p.rings = 0;
+                p.vy = -6;
+                p.vx = -p.facing * 5;
+                sfx.hit();
+            } else {
+                p.lives--;
+                sfx.hit();
+                if (p.lives <= 0) {
+                    mp_finishGame();
+                } else {
+                    p.x = 80; p.y = 300; p.vx = 0; p.vy = 0;
+                    p.invulnerableTimer = 90;
+                }
+            }
+        }
+
+        function mp_finishGame() {
+            mp_active = false;
+            stopMusic();
+            sfx.win();
+            gameState = "menu";
+        }
+
+        function mp_update() {
+            if (gameState !== "multiplayer") return;
+
+            mp_updatePlayer(mp_player1);
+            mp_updatePlayer(mp_player2);
+
+            mp_clouds.forEach(c => {
+                c.x -= c.speed;
+                if (c.x < -200) c.x = mp_levelWidth + 200;
+            });
+
+            mp_enemies.forEach(enemy => {
+                if (!enemy.alive) return;
+
+                if (enemy.type === "shooter" || enemy.type === "melee") {
+                    enemy.x += enemy.vx;
+                    if (enemy.x < enemy.startX || enemy.x > enemy.endX) enemy.vx *= -1;
+                } else if (enemy.type === "flyer") {
+                    enemy.x += enemy.vx;
+                    if (enemy.x < enemy.startX || enemy.x > enemy.endX) enemy.vx *= -1;
+                    enemy.flyPhase += 0.04;
+                    enemy.y = enemy.baseY + Math.sin(enemy.flyPhase) * 30;
+                }
+
+                // Colisão de cada jogador com o inimigo
+                [mp_player1, mp_player2].forEach(p => {
+                    const dist = Math.hypot(p.x - enemy.x, p.y - enemy.y);
+                    if (dist < p.radius + 16) {
+                        if (p.vy > 0 || p.isRolling) {
+                            enemy.alive = false;
+                            p.vy = -7;
+                            p.score += 200;
+                            sfx.stomp();
+                        } else {
+                            mp_takeDamage(p);
+                        }
+                    }
+                });
+            });
+        }
+
+        // Desenha a cena de UM jogador dentro de um viewport retangular (metade da tela)
+        function mp_renderPlayerViewport(p, viewX, viewY, viewW, viewH) {
+            const theme = NORMAL_THEMES[mp_currentStage] || NORMAL_THEMES[0];
+            // O "mundo" (chão, personagens etc.) foi pensado para uma tela de
+            // altura canvas.height (450px) inteira. Aqui só temos metade disso
+            // (viewH), então escalamos verticalmente para o mundo caber todo
+            // dentro do viewport, sem cortar o chão nem o personagem.
+            const worldH = canvas.height; // altura "lógica" original do mundo
+            const scaleY = viewH / worldH;
+
+            ctx.save();
+            ctx.beginPath();
+            ctx.rect(viewX, viewY, viewW, viewH);
+            ctx.clip();
+
+            ctx.fillStyle = theme.sky;
+            ctx.fillRect(viewX, viewY, viewW, viewH);
+
+            ctx.translate(viewX, viewY);
+            ctx.scale(1, scaleY); // comprime o eixo Y para caber na metade da tela
+            ctx.translate(-p.cameraX, 0);
+
+            mp_clouds.forEach(c => drawCloud(c.x, c.y, c.scale));
+
+            ctx.fillStyle = theme.top;
+            ctx.fillRect(0, MP_GROUND_Y, mp_levelWidth, 15);
+            ctx.fillStyle = theme.bottom;
+            ctx.fillRect(0, MP_GROUND_Y + 15, mp_levelWidth, worldH - MP_GROUND_Y);
+
+            for (const ramp of mp_ramps) {
+                ctx.beginPath();
+                ctx.moveTo(ramp.startX, MP_GROUND_Y);
+                for (let x = ramp.startX; x <= ramp.endX; x += 5) {
+                    const progress = (x - ramp.startX) / (ramp.endX - ramp.startX);
+                    const y = MP_GROUND_Y - Math.sin(progress * Math.PI) * (MP_GROUND_Y - ramp.peakY);
+                    ctx.lineTo(x, y);
+                }
+                ctx.lineTo(ramp.endX, MP_GROUND_Y);
+                ctx.fillStyle = theme.top;
+                ctx.fill();
+            }
+
+            // Bandeira de chegada
+            ctx.fillStyle = "#fff";
+            ctx.fillRect(mp_finishX, MP_GROUND_Y - 40, 6, 40);
+            ctx.fillStyle = "#ff0000";
+            ctx.fillRect(mp_finishX + 6, MP_GROUND_Y - 40, 20, 15);
+
+            // Anéis
+            const ringFrame = Math.floor(Date.now() / 120) % 4;
+            mp_ringObjects.forEach(ring => {
+                if (!ring.collected) {
+                    ctx.save();
+                    ctx.translate(ring.x, ring.y);
+                    ctx.fillStyle = "#ffeb3b";
+                    const wf = [1, 0.6, 0.2, 0.6][ringFrame];
+                    ctx.beginPath();
+                    ctx.ellipse(0, 0, 8 * wf, 10, 0, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.restore();
+                }
+            });
+
+            // Inimigos
+            const enemyFallbackColor = { shooter: "#e53935", melee: "#2e7d32", flyer: "#ff9800" };
+            const enemySpriteMap = { shooter: sprites.enemyShooter, melee: sprites.enemyMelee, flyer: sprites.enemyFlyer };
+            mp_enemies.forEach(enemy => {
+                if (!enemy.alive) return;
+                const spr = enemySpriteMap[enemy.type];
+                if (spr) {
+                    ctx.drawImage(spr, enemy.x - 16, enemy.y - 10, enemy.width, enemy.height);
+                } else {
+                    ctx.fillStyle = enemyFallbackColor[enemy.type] || "#e53935";
+                    ctx.fillRect(enemy.x - 16, enemy.y - 10, enemy.width, enemy.height);
+                }
+            });
+
+            // Os dois jogadores (cada viewport mostra ambos, já que a fase é compartilhada)
+            [mp_player1, mp_player2].forEach(pl => {
+                const pc = CHARACTERS[pl.charKey];
+                const blinking = pl.invulnerableTimer > 0 && Math.floor(pl.invulnerableTimer / 5) % 2 === 0;
+                if (blinking) return;
+
+                ctx.save();
+                ctx.translate(pl.x, pl.y);
+
+                const rolling = pl.isRolling || pl.isSpinDashing;
+                const rollSprite = sprites[pc.rollSpriteKey];
+
+                // Para personagens com sprite de "andando" dedicado (ex.: Tails
+                // fora de voo), usa ele quando não estiver voando nem rolando.
+                let idleSprite;
+                if (pc.canFly && pc.walkSpriteKey && sprites[pc.walkSpriteKey] && !pl.isFlying) {
+                    idleSprite = sprites[pc.walkSpriteKey];
+                } else {
+                    idleSprite = sprites[pc.spriteKey];
+                }
+
+                const usingDedicatedRollSprite = rolling && !!rollSprite;
+                const spriteToUse = usingDedicatedRollSprite ? rollSprite : idleSprite;
+
+                if (spriteToUse) {
+                    // Sprite de bola dedicado não gira (já é redondo); sem ele,
+                    // gira o sprite parado para simular o rolamento/spin dash.
+                    ctx.rotate((rolling && !usingDedicatedRollSprite) ? pl.angle : 0);
+                    ctx.scale(pl.facing, 1);
+                    ctx.imageSmoothingEnabled = false;
+                    ctx.drawImage(spriteToUse, -16, -20, 32, 32);
+                    ctx.imageSmoothingEnabled = true;
+                } else if (rolling) {
+                    ctx.rotate(pl.angle);
+                    ctx.fillStyle = pc.color;
+                    ctx.beginPath();
+                    ctx.arc(0, 0, pl.radius, 0, Math.PI * 2);
+                    ctx.fill();
+                } else {
+                    ctx.scale(pl.facing, 1);
+                    ctx.fillStyle = pc.color;
+                    ctx.beginPath();
+                    ctx.arc(0, -4, 12, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+                ctx.restore();
+
+                // Barra de combustível de voo (só para personagens que voam, ex.: Tails/P2)
+                if (pc.canFly) {
+                    const barW = 26, barH = 4;
+                    const fuelPct = pl.flyFuel / pl.flyFuelMax;
+                    ctx.fillStyle = "rgba(0,0,0,0.5)";
+                    ctx.fillRect(pl.x - barW / 2, pl.y - 32, barW, barH);
+                    ctx.fillStyle = fuelPct > 0.3 ? "#00e5ff" : "#ff5252";
+                    ctx.fillRect(pl.x - barW / 2, pl.y - 32, barW * fuelPct, barH);
+                }
+            });
+
+            ctx.restore();
+
+            // HUD por jogador (fora do clip, na tela toda)
+            ctx.fillStyle = "rgba(0,0,0,0.5)";
+            ctx.fillRect(viewX + 6, viewY + 6, 150, 46);
+            ctx.textAlign = "left";
+            ctx.fillStyle = "#ffeb3b";
+            ctx.font = 'bold 12px "Courier New"';
+            ctx.fillText(`${CHARACTERS[p.charKey].name}  P${p === mp_player1 ? 1 : 2}`, viewX + 12, viewY + 20);
+            ctx.fillStyle = "#fff";
+            ctx.font = '11px "Courier New"';
+            ctx.fillText(`Anéis: ${p.rings}   Vidas: ${p.lives}   Pontos: ${p.score}`, viewX + 12, viewY + 38);
+        }
+
+        function mp_render() {
+            const halfH = canvas.height / 2;
+            mp_renderPlayerViewport(mp_player1, 0, 0, canvas.width, halfH);
+            mp_renderPlayerViewport(mp_player2, 0, halfH, canvas.width, halfH);
+
+            // Linha divisória entre as duas telas
+            ctx.strokeStyle = "#fff";
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(0, halfH);
+            ctx.lineTo(canvas.width, halfH);
+            ctx.stroke();
+
+            ctx.textAlign = "center";
+            ctx.fillStyle = "#aaa";
+            ctx.font = '11px "Courier New"';
+            ctx.fillText(`FASE ${mp_currentStage + 1} / ${MP_STAGE_COUNT}  —  [ESC] Sair para o menu`, canvas.width / 2, canvas.height - 8);
+        }
+
+        // Tecla ESC sai do modo 2 jogadores a qualquer momento
+        window.addEventListener('keydown', (e) => {
+            if (gameState === "multiplayer" && e.key === "Escape") {
+                mp_exitToMenu();
+            }
+        });
+
+        // Solta o Spin Dash de qualquer um dos 2 jogadores ao soltar sua tecla "baixo"
+        function mp_releaseSpinDash(p) {
+            if (p.isSpinDashing) {
+                p.isSpinDashing = false;
+                p.isRolling = true;
+                p.vx = p.facing * (8 + p.spinDashCharge * 2.5);
+                p.spinDashCharge = 0;
+            }
+        }
+        window.addEventListener('keyup', (e) => {
+            if (gameState !== "multiplayer") return;
+            if (e.key === mp_player1.controls.down) mp_releaseSpinDash(mp_player1);
+            if (e.key === mp_player2.controls.down) mp_releaseSpinDash(mp_player2);
+        });
+        /* ================== FIM DO MÓDULO DE 2 JOGADORES ================== */
+
+        /* =====================================================================
+           CONTROLES TOUCH (CELULAR) — detecta dispositivo com toque e liga
+           botões virtuais aos mesmos códigos de tecla já usados pelo modo solo
+           (ArrowLeft/ArrowRight/ArrowDown/" "/"p"), reaproveitando toda a
+           física e lógica de jogo existentes sem duplicar nada.
+           ===================================================================== */
+        function isTouchDevice() {
+            return ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
+        }
+
+        // Simula o par de eventos keydown/keyup que o resto do jogo já escuta,
+        // assim os botões touch funcionam exatamente como as teclas do PC.
+        function touchPressKey(key) {
+            keys[key] = true;
+            window.dispatchEvent(new KeyboardEvent('keydown', { key }));
+        }
+        function touchReleaseKey(key) {
+            keys[key] = false;
+            window.dispatchEvent(new KeyboardEvent('keyup', { key }));
+        }
+
+        function setupTouchButton(elId, key) {
+            const el = document.getElementById(elId);
+            if (!el) return;
+
+            const start = (e) => {
+                e.preventDefault();
+                el.classList.add('active');
+                touchPressKey(key);
+            };
+            const end = (e) => {
+                e.preventDefault();
+                el.classList.remove('active');
+                touchReleaseKey(key);
+            };
+
+            el.addEventListener('touchstart', start, { passive: false });
+            el.addEventListener('touchend', end, { passive: false });
+            el.addEventListener('touchcancel', end, { passive: false });
+            // Também responde a mouse, útil para testar em desktop/emulador
+            el.addEventListener('mousedown', start);
+            el.addEventListener('mouseup', end);
+            el.addEventListener('mouseleave', end);
+        }
+
+        function initTouchControls() {
+            if (!isTouchDevice()) return;
+            document.body.classList.add('touch-device');
+
+            setupTouchButton('touch-left', 'ArrowLeft');
+            setupTouchButton('touch-right', 'ArrowRight');
+            setupTouchButton('touch-down', 'ArrowDown');
+            setupTouchButton('touch-jump', ' ');
+
+            // Pausa é um toque único (tap), não precisa de estado "segurado"
+            const pauseBtn = document.getElementById('touch-pause');
+            pauseBtn.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                if (gameState === "playing" || gameState === "paused") togglePause();
+            }, { passive: false });
+        }
+
+        window.addEventListener('DOMContentLoaded', initTouchControls);
+        /* ================== FIM DOS CONTROLES TOUCH ================== */
+
+
+        function loop() {
+            if (gameState === "multiplayer") {
+                mp_update();
+                mp_render();
+            } else {
+                update();
+                render();
+            }
+            updateMenuButtonVisibility();
+            requestAnimationFrame(loop);
+        }
+
+        loop();
+    </script></body></html>
