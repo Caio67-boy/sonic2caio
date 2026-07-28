@@ -1069,7 +1069,7 @@
 
             // Inimigos (enviados pelo usuário via Pixilart, já redimensionados e com fundo transparente)
             enemyShooter: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAAd0lEQVR42u3WvQmAMBAGUCNuYGnrLJk4VWaxtXQGbdVCQRH/3usCIdxHLuSKAoA/C0PTjk8usO67MF+nlBb1lm+/AQHuVr2t57WQAF//B9ZvQAsJ8PdZSAsJAABXzkJ7G2KMm7NSzjmcKeDs+UYJAQQQQAAAOGwCQSwaZa6AKVQAAAAASUVORK5CYII=", // vermelho: atira
-            enemyMelee:   "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAAlUlEQVR42u2Zuw2AIBBAOeMaFhT0bmJh73D2VnZM4QKGwj3UVmJBwRnFvNcREsjL8bkDMcpUQ3Nc27Zvo/61m0V1PlM4CLyNPL0HUuzjJiwhBACg3HsglfukyM2NOEYRQAABBBBAAIEMau0Bw7QQAQQAAABKQf1/wDkXvxNZG/V77/kjQwABBBD4cU18q5FDIAIIfJkTyYwVQgcPox4AAAAASUVORK5CYII=", // verde: corpo a corpo
+            enemyMelee:   "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAAlUlEQVR42u2Zuw2AIBCAOeMaFhT0bmJh73D2VnZM4QKGwj3UVmJBwRnFvNcREsjL8bkDMcpUQ3Nc27Zvo/61m0V1PlM4CLyNPL0HUuzjJiwhBACg3HsglfukyM2NOEYRQAABBBBAAIEMau0Bw7QQAQQAAABKQf1/wDkXvxNZG/V77/kjQwABBBD4cU18q5FDIAIIfJkTyYwVQgcPox4AAAAASUVORK5CYII=", // verde: corpo a corpo
             enemyFlyer:   "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAAjUlEQVR42u3XvQ2AIBCGYVA3sDFxCKNzMIeDMAZzMIcT2FpaWhIdAAsw/qHvUxIS7gscyQkBIGnSWruGblZKyTuKiqkpS/0GCEAAAAAAADg61MdsHvrcG7bbyp1flA6vi5GSAH8PUIQ261UNa3Tjrc31snt+OY2SJ0QAAnwsgIz5hZ7WGccvRAACAMCrbPSeGN3XGOo2AAAAAElFTkSuQmCC"  // laranja: voa e atira
         };
 
@@ -1937,6 +1937,7 @@
         let pits = [];        // buracos no chão (queda = perde vida)
         let platforms = [];   // plataformas móveis (sobe/desce ou vai/volta)
         let springs = [];     // molas (impulsionam o Sonic para cima ou para o lado)
+        let walls = [];        // paredes sólidas: obrigam o jogador a pular, impedem "atravessar correndo"
         let finishFlag = { x: 3000, y: groundY - 40 };
 
         // --- CONFIGURAÇÃO DE OBSTÁCULOS POR FASE (temas diferentes por zona) ---
@@ -2077,6 +2078,18 @@
                     springs.push({ x: sx, y: groundY, width: 26, height: 20, power: -14 - Math.random() * 3 });
                 }
             }
+
+            // --- PAREDES (sempre presentes, em toda fase normal) ---
+            // Obrigam o jogador a pular para seguir em frente: sem elas, dava
+            // para simplesmente segurar a direção e atravessar a fase inteira
+            // correndo, sem interagir com nada. A altura cresce com a
+            // dificuldade, mas sempre dentro do alcance do pulo normal.
+            const wallCount = 2 + Math.floor(levelNum * 0.4);
+            for (let i = 0; i < wallCount; i++) {
+                const wx = safeStart + (i + 1) * ((safeEnd - safeStart) / (wallCount + 1)) + (Math.random() * 60 - 30);
+                const wHeight = 46 + Math.random() * 18 + levelNum * 2;
+                walls.push({ x: wx, width: 22, height: Math.min(wHeight, 92) });
+            }
         }
 
         function loadLevel(levelNum) {
@@ -2096,6 +2109,7 @@
             pits = [];
             platforms = [];
             springs = [];
+            walls = [];
 
             const zoneType = ZONE_TYPES[levelNum] || "normal";
 
@@ -2260,6 +2274,23 @@
 
             if (sonic.x - sonic.radius < 0) { sonic.x = sonic.radius; sonic.vx = 0; }
             if (sonic.x + sonic.radius > levelWidth) { sonic.x = levelWidth - sonic.radius; sonic.vx = 0; }
+
+            // 4a. Colisão com paredes sólidas — bloqueiam o avanço horizontal
+            // enquanto o personagem estiver abaixo do topo da parede, obrigando
+            // a pular por cima em vez de simplesmente atravessar correndo.
+            walls.forEach(w => {
+                const wallTop = groundY - w.height;
+                const withinX = sonic.x + sonic.radius > w.x && sonic.x - sonic.radius < w.x + w.width;
+                if (withinX && sonic.y + sonic.radius > wallTop + 2) {
+                    if (sonic.vx > 0) {
+                        sonic.x = w.x - sonic.radius;
+                        sonic.vx = 0;
+                    } else if (sonic.vx < 0) {
+                        sonic.x = w.x + w.width + sonic.radius;
+                        sonic.vx = 0;
+                    }
+                }
+            });
 
             // 4. Colisão com Chão e Rampas
             let currentGroundY = groundY;
@@ -2725,6 +2756,18 @@
                 ctx.fillRect(plat.x - plat.width / 2, plat.y - plat.height / 2, plat.width, plat.height);
                 ctx.fillStyle = "#bbb";
                 ctx.fillRect(plat.x - plat.width / 2, plat.y - plat.height / 2, plat.width, 4);
+            });
+
+            // Paredes sólidas — bloco cinza com listras de aviso amarelas/pretas
+            walls.forEach(w => {
+                const wallTop = groundY - w.height;
+                ctx.fillStyle = "#5d4037";
+                ctx.fillRect(w.x, wallTop, w.width, w.height);
+                ctx.fillStyle = "#ffca28";
+                ctx.fillRect(w.x, wallTop, w.width, 6);
+                ctx.strokeStyle = "#3e2723";
+                ctx.lineWidth = 2;
+                ctx.strokeRect(w.x, wallTop, w.width, w.height);
             });
 
             // Bandeira de Chegada
