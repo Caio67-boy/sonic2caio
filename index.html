@@ -4128,6 +4128,15 @@
                             on_loadStage(payload.stage);
                         }
                     })
+                    .on('broadcast', { event: 'enemy_defeated' }, ({ payload }) => {
+                        // O parceiro derrotou um inimigo — marca o mesmo inimigo
+                        // (mesmo id, mesma fase) como morto também no meu lado.
+                        if (payload.stage !== on_currentStage) return;
+                        const enemy = on_enemies.find(e => e.id === payload.enemyId);
+                        if (enemy && enemy.alive) {
+                            enemy.alive = false;
+                        }
+                    })
                     .subscribe((status) => {
                         if (status === 'SUBSCRIBED') resolve();
                     });
@@ -4208,11 +4217,11 @@
                 const ex = 450 + (i * (on_levelWidth - 650) / enemyCount);
                 const typeRoll = i % 3;
                 if (typeRoll === 0) {
-                    on_enemies.push({ type: "shooter", x: ex, y: 360, width: 32, height: 20, vx: -0.6, startX: ex - 60, endX: ex + 60, alive: true, shootTimer: Math.floor(rng()*90), bullets: [] });
+                    on_enemies.push({ id: i, type: "shooter", x: ex, y: 360, width: 32, height: 20, vx: -0.6, startX: ex - 60, endX: ex + 60, alive: true, shootTimer: Math.floor(rng()*90), bullets: [] });
                 } else if (typeRoll === 1) {
-                    on_enemies.push({ type: "melee", x: ex, y: 360, width: 32, height: 20, vx: -1.3, startX: ex - 80, endX: ex + 80, alive: true, charging: false, chargeCooldown: 0 });
+                    on_enemies.push({ id: i, type: "melee", x: ex, y: 360, width: 32, height: 20, vx: -1.3, startX: ex - 80, endX: ex + 80, alive: true, charging: false, chargeCooldown: 0 });
                 } else {
-                    on_enemies.push({ type: "flyer", x: ex, y: 220 + rng()*50, width: 32, height: 22, alive: true, baseY: 220 + rng()*50, flyPhase: rng()*Math.PI*2, vx: -1.0, startX: ex - 100, endX: ex + 100, shootTimer: Math.floor(rng()*100), bullets: [] });
+                    on_enemies.push({ id: i, type: "flyer", x: ex, y: 220 + rng()*50, width: 32, height: 22, alive: true, baseY: 220 + rng()*50, flyPhase: rng()*Math.PI*2, vx: -1.0, startX: ex - 100, endX: ex + 100, shootTimer: Math.floor(rng()*100), bullets: [] });
                 }
             }
 
@@ -4424,6 +4433,14 @@
                         p.vy = -7;
                         p.score += 200;
                         sfx.stomp();
+                        // Avisa o parceiro pela rede que este inimigo foi derrotado,
+                        // pra ele também sumir do lado dele.
+                        if (on_channel) {
+                            on_channel.send({
+                                type: 'broadcast', event: 'enemy_defeated',
+                                payload: { enemyId: enemy.id, stage: on_currentStage }
+                            });
+                        }
                     } else {
                         on_takeDamage(p);
                     }
