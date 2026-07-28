@@ -246,6 +246,47 @@
             color: #fff;
             font-size: 13px;
         }
+        #chat-emoji-btn {
+            font-size: 18px;
+            padding: 4px 8px;
+            border-radius: 4px;
+            border: 2px solid #555;
+            background: #222;
+            cursor: pointer;
+            line-height: 1;
+        }
+        #chat-emoji-btn:hover, #chat-emoji-btn.active {
+            background: #444;
+            border-color: #888;
+        }
+        #chat-emoji-panel {
+            display: none;
+            grid-template-columns: repeat(8, 1fr);
+            gap: 4px;
+            width: 320px;
+            max-height: 130px;
+            overflow-y: auto;
+            background: rgba(255,255,255,0.06);
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 4px;
+            padding: 6px;
+            margin-top: 6px;
+        }
+        #chat-emoji-panel.visible {
+            display: grid;
+        }
+        #chat-emoji-panel button {
+            font-size: 19px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            border-radius: 4px;
+            padding: 3px;
+            line-height: 1;
+        }
+        #chat-emoji-panel button:hover {
+            background: rgba(255,255,255,0.2);
+        }
         #chat-status {
             min-height: 16px;
             font-size: 11px;
@@ -297,6 +338,141 @@
             padding: 6px 10px;
             cursor: pointer;
             z-index: 6;
+        }
+
+        /* ===================== SALA ONLINE (2 JOGADORES PELA INTERNET) ===================== */
+        #online-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg, #001a33 0%, #000814 100%);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 22;
+            text-align: center;
+            padding: 20px;
+        }
+        #online-overlay.visible { display: flex; }
+        #online-overlay h2 {
+            color: #00e5ff;
+            font-size: 26px;
+            margin-bottom: 4px;
+            text-shadow: 2px 2px #000;
+        }
+        #online-overlay p.online-subtitle {
+            color: #aaa;
+            font-size: 12px;
+            margin-bottom: 18px;
+        }
+        #online-panel {
+            background: rgba(0,0,0,0.4);
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 6px;
+            padding: 20px;
+            width: 280px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        #online-panel input {
+            font-family: 'Courier New', Courier, monospace;
+            padding: 8px;
+            border-radius: 4px;
+            border: 2px solid #555;
+            background: #111;
+            color: #fff;
+            font-size: 14px;
+            text-align: center;
+        }
+        #online-nick-input { text-transform: none; }
+        #online-code-input { text-transform: uppercase; letter-spacing: 4px; font-size: 20px; }
+        #online-panel button {
+            font-family: 'Courier New', Courier, monospace;
+            font-weight: bold;
+            padding: 9px;
+            border-radius: 4px;
+            border: 2px solid #fff;
+            cursor: pointer;
+            font-size: 13px;
+        }
+        #online-create-btn { background: #00695c; color: #fff; }
+        #online-create-btn:hover { background: #00897b; }
+        #online-join-btn { background: #1565c0; color: #fff; }
+        #online-join-btn:hover { background: #1976d2; }
+        #online-back-btn { background: #555; color: #fff; margin-top: 4px; }
+        #online-back-btn:hover { background: #666; }
+        #online-divider {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #666;
+            font-size: 11px;
+            margin: 2px 0;
+        }
+        #online-divider::before, #online-divider::after {
+            content: "";
+            flex: 1;
+            height: 1px;
+            background: #444;
+        }
+        #online-status {
+            min-height: 18px;
+            font-size: 12px;
+            color: #ff5252;
+        }
+        #online-status.ok { color: #00e676; }
+        #online-waiting-panel {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+        #online-waiting-panel.visible { display: flex; }
+        #online-room-code-display {
+            font-size: 40px;
+            letter-spacing: 10px;
+            color: #ffeb3b;
+            font-weight: bold;
+            text-shadow: 2px 2px #000;
+        }
+        #online-waiting-hint {
+            color: #aaa;
+            font-size: 12px;
+        }
+        #online-pulse {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: #00e676;
+            animation: onlinePulse 1.2s infinite;
+        }
+        @keyframes onlinePulse {
+            0% { opacity: 0.3; transform: scale(0.8); }
+            50% { opacity: 1; transform: scale(1.2); }
+            100% { opacity: 0.3; transform: scale(0.8); }
+        }
+        #online-tag {
+            position: absolute;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 10px;
+            font-weight: bold;
+            color: #fff;
+            background: rgba(0,0,0,0.55);
+            padding: 2px 6px;
+            border-radius: 4px;
+            pointer-events: none;
+            white-space: nowrap;
+        }
+        #online-connection-badge {
+            position: absolute;
+            top: 40px;
+            right: 20px;
+            font-size: 11px;
+            color: #ccc;
+            text-shadow: 1px 1px #000;
+            z-index: 6;
+            user-select: none;
         }
 
         /* ===================== CONTROLES TOUCH (CELULAR) ===================== */
@@ -434,17 +610,47 @@
             </div>
             <div id="chat-status"></div>
             <div id="chat-window"></div>
+            <div id="chat-emoji-panel"></div>
             <div id="chat-message-input-row" style="display:none;">
+                <button id="chat-emoji-btn" type="button">😀</button>
                 <input id="chat-message-input" type="text" placeholder="Escreva uma mensagem..." maxlength="500">
                 <button id="chat-send-btn">Enviar</button>
             </div>
             <button id="chat-close-btn">FECHAR</button>
         </div>
+
+        <!-- Sala online — criar ou entrar em uma partida de 2 jogadores pela internet -->
+        <div id="online-overlay">
+            <h2>🌐 JOGAR ONLINE</h2>
+            <p class="online-subtitle">2 jogadores, mesma fase, em tempo real</p>
+
+            <div id="online-panel">
+                <input id="online-nick-input" type="text" placeholder="Seu apelido" maxlength="14">
+                <input id="online-code-input" type="text" placeholder="CÓDIGO DA SALA" maxlength="4">
+                <button id="online-join-btn">ENTRAR NA SALA</button>
+                <div id="online-divider">ou</div>
+                <button id="online-create-btn">CRIAR NOVA SALA</button>
+                <div id="online-status"></div>
+                <button id="online-back-btn">VOLTAR AO MENU</button>
+            </div>
+
+            <div id="online-waiting-panel">
+                <p style="color:#aaa; font-size:12px;">Compartilhe este código com seu amigo:</p>
+                <div id="online-room-code-display">----</div>
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <div id="online-pulse"></div>
+                    <span id="online-waiting-hint">Aguardando o outro jogador...</span>
+                </div>
+                <button id="online-cancel-btn" style="font-family:'Courier New',Courier,monospace; font-weight:bold; padding:9px 16px; border-radius:4px; border:2px solid #fff; cursor:pointer; background:#555; color:#fff; margin-top:8px;">CANCELAR</button>
+            </div>
+        </div>
+        <div id="online-connection-badge"></div>
     </div>
 
     <div id="controls-hint">
         Mover: [A/D] ou [SETAS] | Pular: [ESPAÇO/W] | Spin Dash: Segure [BAIXO] + [ESPAÇO] e Solte [BAIXO] | [P] Pausa | [M] Música
     </div>
+
 
     <script>
         const canvas = document.getElementById('gameCanvas');
@@ -1432,6 +1638,12 @@
             flyFuelMax: 100
         };
 
+        // Controle de double-tap para ativar voo do Tails (1 clique = pulo, 2 cliques = voar)
+        let jumpTapCount = 0;
+        let jumpTapTimer = 0;
+        const DOUBLE_TAP_WINDOW = 20; // frames (~0.33s a 60fps) para o segundo toque contar como duplo clique
+        let flightModeActive = false; // true depois do duplo clique, enquanto Tails está no ar
+
         // --- TECLAS ---
         const keys = {};
         const characterOrder = ["sonic", "tails", "knuckles"];
@@ -1441,6 +1653,11 @@
                 e.preventDefault();
             }
             keys[e.key] = true;
+
+            // Detecta clique novo (não "hold") da tecla de pulo, para contar double-tap do Tails
+            if ((e.key === " " || e.key === "w" || e.key === "W" || e.key === "ArrowUp") && !e.repeat) {
+                handleJumpTap();
+            }
 
             if (e.key === "p" || e.key === "P") {
                 togglePause();
@@ -1506,6 +1723,10 @@
                     startMultiplayerGame();
                     return;
                 }
+                if (isInsideOnlineButton(clickX, clickY)) {
+                    openOnlineOverlay();
+                    return;
+                }
                 gameState = "character_select";
                 getAudioCtx();
             } else if (gameState === "character_select") {
@@ -1561,7 +1782,7 @@
             return x >= btn.x && x <= btn.x + btn.w && y >= btn.y && y <= btn.y + btn.h;
         }
         function shopButtonRect() {
-            return { x: canvas.width / 2 - 70, y: canvas.height - 60, w: 140, h: 34 };
+            return { x: canvas.width / 2 - 70, y: canvas.height - 146, w: 140, h: 32 };
         }
 
         function handleShopClick(e) {
@@ -1614,12 +1835,42 @@
             }
         }
 
+        // Conta os cliques da tecla de pulo: 1 clique no ar = pulo normal,
+        // 2 cliques dentro da janela de tempo = ativa o modo voo do Tails.
+        function handleJumpTap() {
+            if (gameState !== "playing") return;
+            const character = CHARACTERS[selectedCharacter];
+            if (!character.canFly) return; // só o Tails usa esse sistema
+
+            if (sonic.isGrounded) {
+                // No chão, toques não contam para o combo de voo (evita ativar voo sem pular antes)
+                jumpTapCount = 0;
+                flightModeActive = false;
+                return;
+            }
+
+            if (jumpTapTimer > 0 && jumpTapCount === 1) {
+                // Segundo clique dentro da janela: ativa o modo voo
+                jumpTapCount = 0;
+                jumpTapTimer = 0;
+                if (sonic.flyFuel > 0) {
+                    flightModeActive = true;
+                    sfx.jump();
+                }
+            } else {
+                // Primeiro clique
+                jumpTapCount = 1;
+                jumpTapTimer = DOUBLE_TAP_WINDOW;
+            }
+        }
+
         // Volta para a tela de menu inicial, zerando todo o progresso da run atual
         function goToMenu() {
             gameState = "menu";
             gameOver = false;
             gameWon = false;
             mp_active = false; // caso esteja saindo do modo 2 jogadores local
+            if (on_channel) on_teardownChannel(); // caso esteja saindo do modo online
             stopMusic();
             paused = false;
         }
@@ -1973,21 +2224,34 @@
                 sfx.jump();
             }
 
-            // 3b. Voo do Tails — segurar pular no ar consome combustível e flutua devagar
+            // 3b. Voo do Tails — 1 clique no ar = pulo normal; 2 cliques (double-tap) = ativa
+            // o voo, que continua sozinho (sem precisar segurar) até acabar o combustível,
+            // até soltar a tecla, ou até tocar o chão.
             const character = CHARACTERS[selectedCharacter];
+
+            // Conta regressiva da janela de double-tap
+            if (jumpTapTimer > 0) {
+                jumpTapTimer--;
+                if (jumpTapTimer === 0) jumpTapCount = 0; // expirou sem o segundo clique
+            }
+
             const holdingJump = keys[" "] || keys["w"] || keys["ArrowUp"];
 
-            if (character.canFly && !sonic.isGrounded && holdingJump && sonic.flyFuel > 0) {
+            if (character.canFly && flightModeActive && !sonic.isGrounded && holdingJump && sonic.flyFuel > 0) {
                 sonic.isFlying = true;
                 sonic.vy = Math.max(sonic.vy - 0.9, -2.2); // flutua suavemente para cima
                 sonic.flyFuel = Math.max(0, sonic.flyFuel - 1);
             } else {
                 sonic.isFlying = false;
+                if (sonic.flyFuel <= 0 || !holdingJump) flightModeActive = false;
             }
 
             if (sonic.isGrounded) {
                 // recarrega o combustível de voo enquanto está no chão
                 sonic.flyFuel = Math.min(sonic.flyFuelMax, sonic.flyFuel + 2);
+                flightModeActive = false; // pousar sempre encerra o voo, reiniciando o combo
+                jumpTapCount = 0;
+                jumpTapTimer = 0;
             }
 
             sonic.vy += sonic.gravity * (sonic.isFlying ? 0.35 : 1); // gravidade reduzida enquanto voa
@@ -2741,11 +3005,12 @@
 
             drawShopButton();
             drawMultiplayerButton();
+            drawOnlineButton();
         }
 
         // Botão "🎮 2 JOGADORES (LOCAL)" desenhado no menu, ao lado do botão de loja
         function multiplayerButtonRect() {
-            return { x: canvas.width / 2 - 100, y: canvas.height - 100, w: 200, h: 32 };
+            return { x: canvas.width / 2 - 100, y: canvas.height - 106, w: 200, h: 32 };
         }
         function drawMultiplayerButton() {
             const btn = multiplayerButtonRect();
@@ -2763,6 +3028,28 @@
             const btn = multiplayerButtonRect();
             return x >= btn.x && x <= btn.x + btn.w && y >= btn.y && y <= btn.y + btn.h;
         }
+
+        // Botão "🌐 JOGAR ONLINE" — logo abaixo do botão de 2 jogadores local
+        function onlineButtonRect() {
+            return { x: canvas.width / 2 - 100, y: canvas.height - 66, w: 200, h: 32 };
+        }
+        function drawOnlineButton() {
+            const btn = onlineButtonRect();
+            ctx.fillStyle = "#0d47a1";
+            ctx.fillRect(btn.x, btn.y, btn.w, btn.h);
+            ctx.strokeStyle = "#00e5ff";
+            ctx.lineWidth = 2;
+            ctx.strokeRect(btn.x, btn.y, btn.w, btn.h);
+            ctx.fillStyle = "#fff";
+            ctx.font = 'bold 13px "Courier New"';
+            ctx.textAlign = "center";
+            ctx.fillText("🌐 JOGAR ONLINE", btn.x + btn.w / 2, btn.y + 21);
+        }
+        function isInsideOnlineButton(x, y) {
+            const btn = onlineButtonRect();
+            return x >= btn.x && x <= btn.x + btn.w && y >= btn.y && y <= btn.y + btn.h;
+        }
+
 
         function renderCharacterSelect(theme) {
             const grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
@@ -3128,7 +3415,8 @@
                 invulnerableTimer: 60,
                 cameraX: 0,
                 // Voo (usado só pelo Tails/P2)
-                isFlying: false, flyFuel: 100, flyFuelMax: 100
+                isFlying: false, flyFuel: 100, flyFuelMax: 100,
+                jumpTapCount: 0, jumpTapTimer: 0, flightModeActive: false
             };
         }
 
@@ -3252,16 +3540,26 @@
                 sfx.jump();
             }
 
-            // Voo (só personagens com canFly, ex.: Tails/P2)
+            // Double-tap: 1 clique no ar = pulo normal, 2 cliques = ativa voo (só canFly, ex.: Tails/P2)
+            if (p.jumpTapTimer > 0) {
+                p.jumpTapTimer--;
+                if (p.jumpTapTimer === 0) p.jumpTapCount = 0;
+            }
             const holdingJump = keys[p.controls.jump];
-            if (character.canFly && !p.isGrounded && holdingJump && p.flyFuel > 0) {
+            if (character.canFly && p.flightModeActive && !p.isGrounded && holdingJump && p.flyFuel > 0) {
                 p.isFlying = true;
                 p.vy = Math.max(p.vy - 0.9, -2.2);
                 p.flyFuel = Math.max(0, p.flyFuel - 1);
             } else {
                 p.isFlying = false;
+                if (p.flyFuel <= 0 || !holdingJump) p.flightModeActive = false;
             }
-            if (p.isGrounded) p.flyFuel = Math.min(p.flyFuelMax, p.flyFuel + 2);
+            if (p.isGrounded) {
+                p.flyFuel = Math.min(p.flyFuelMax, p.flyFuel + 2);
+                p.flightModeActive = false;
+                p.jumpTapCount = 0;
+                p.jumpTapTimer = 0;
+            }
 
             p.vy += gravity * (p.isFlying ? 0.35 : 1);
             p.x += p.vx;
@@ -3556,7 +3854,35 @@
             if (gameState === "multiplayer" && e.key === "Escape") {
                 mp_exitToMenu();
             }
+            if (gameState === "multiplayer" && !e.repeat) {
+                [mp_player1, mp_player2].forEach(p => {
+                    if (e.key === p.controls.jump) mp_handleJumpTap(p);
+                });
+            }
         });
+
+        // Conta os cliques da tecla de pulo de cada jogador no modo 2P:
+        // 1 clique no ar = pulo normal, 2 cliques = ativa o modo voo (só canFly, ex.: Tails/P2)
+        function mp_handleJumpTap(p) {
+            const character = CHARACTERS[p.charKey];
+            if (!character.canFly) return;
+            if (p.isGrounded) {
+                p.jumpTapCount = 0;
+                p.flightModeActive = false;
+                return;
+            }
+            if (p.jumpTapTimer > 0 && p.jumpTapCount === 1) {
+                p.jumpTapCount = 0;
+                p.jumpTapTimer = 0;
+                if (p.flyFuel > 0) {
+                    p.flightModeActive = true;
+                    sfx.jump();
+                }
+            } else {
+                p.jumpTapCount = 1;
+                p.jumpTapTimer = DOUBLE_TAP_WINDOW;
+            }
+        }
 
         // Solta o Spin Dash de qualquer um dos 2 jogadores ao soltar sua tecla "baixo"
         function mp_releaseSpinDash(p) {
@@ -3573,6 +3899,755 @@
             if (e.key === mp_player2.controls.down) mp_releaseSpinDash(mp_player2);
         });
         /* ================== FIM DO MÓDULO DE 2 JOGADORES ================== */
+
+        /* =====================================================================
+           MODO ONLINE — 2 jogadores pela internet, na mesma fase, em tempo real.
+           =====================================================================
+           Como funciona:
+           - Usa o Supabase Realtime (recurso "Broadcast" de canais) — não precisa
+             de nenhuma tabela nova no banco, só o mesmo projeto já configurado
+             lá em cima para login/chat.
+           - Uma sala = um canal chamado "online-room-XXXX" (XXXX = código de 4
+             letras). Quem cria a sala é o "host": ele sorteia a semente (seed)
+             que gera a fase, e os dois lados geram a MESMA fase localmente a
+             partir dessa semente (em vez de ficar sincronizando cada anel/
+             inimigo pela rede, o que seria pesado).
+           - Cada jogador só controla o PRÓPRIO boneco com a física de sempre
+             (sem lag nenhum no seu personagem) e transmite sua posição ~15x
+             por segundo. A posição do parceiro chega por rede e é suavizada
+             (interpolada) até o valor mais recente, pra não parecer "teleporte".
+           - Sem colisão entre os jogadores (é cooperativo, não é PvP): cada um
+             vê o outro correndo/pulando/coletando anéis, mas não pode acertar
+             nem ser acertado pelo parceiro.
+           ===================================================================== */
+
+        const ON_STAGE_COUNT = 4;
+        const ON_GROUND_Y = 380;
+
+        let on_channel = null;          // canal Realtime da sala (Broadcast)
+        let on_roomCode = null;         // código de 4 letras da sala atual
+        let on_isHost = false;          // true se este cliente criou a sala
+        let on_myNick = "Jogador";
+        let on_partnerNick = "Amigo";
+        let on_partnerJoined = false;
+        let on_seed = 1;                // semente compartilhada — gera a mesma fase nos 2 lados
+        let on_myId = null;             // identificador aleatório desta aba/sessão (para ignorar eco)
+        let on_sendTimer = null;
+        let on_currentStage = 0;
+        let on_levelWidth = 2600;
+        let on_finishX = 2400;
+        let on_ringObjects = [];
+        let on_enemies = [];
+        let on_ramps = [];
+        let on_clouds = [];
+        let on_connectionStatus = "";   // texto curto mostrado no badge durante o jogo
+
+        // Gerador de números pseudo-aleatórios com semente (determinístico) —
+        // assim os dois jogadores montam exatamente a mesma fase sem trocar
+        // dados extras pela rede, só a semente inicial.
+        function on_makeSeededRng(seed) {
+            let s = seed >>> 0;
+            return function () {
+                s = (s * 1664525 + 1013904223) >>> 0;
+                return s / 4294967296;
+            };
+        }
+
+        function on_generateRoomCode() {
+            const letters = "ABCDEFGHJKLMNPQRSTUVWXYZ"; // sem I/O pra evitar confusão visual
+            let code = "";
+            for (let i = 0; i < 4; i++) code += letters[Math.floor(Math.random() * letters.length)];
+            return code;
+        }
+
+        // Jogador local (o que EU controlo) — física idêntica ao modo 2P local
+        function on_makeLocalPlayer(charKey) {
+            return {
+                charKey,
+                x: 80, y: 300, radius: 16,
+                vx: 0, vy: 0,
+                facing: 1, angle: 0,
+                isGrounded: false, isRolling: false,
+                isCrouching: false, isSpinDashing: false, spinDashCharge: 0,
+                rings: 0, score: 0, lives: 3,
+                invulnerableTimer: 60,
+                cameraX: 0,
+                isFlying: false, flyFuel: 100, flyFuelMax: 100,
+                jumpTapCount: 0, jumpTapTimer: 0, flightModeActive: false
+            };
+        }
+
+        // Jogador remoto (o parceiro) — não roda física própria aqui, só guarda
+        // a última posição recebida e interpola visualmente até ela.
+        function on_makeRemotePlayer(charKey) {
+            return {
+                charKey,
+                x: 80, y: 300, // posição desenhada (suavizada)
+                targetX: 80, targetY: 300, // último valor recebido da rede
+                facing: 1, angle: 0,
+                isRolling: false, isFlying: false,
+                rings: 0, score: 0, lives: 3,
+                connected: false
+            };
+        }
+
+        let on_localPlayer = on_makeLocalPlayer("sonic");
+        let on_remotePlayer = on_makeRemotePlayer("tails");
+
+        function on_setStatus(text, ok) {
+            const el = document.getElementById('online-status');
+            if (el) { el.textContent = text; el.className = ok ? "ok" : ""; }
+        }
+
+        function openOnlineOverlay() {
+            if (!supabaseReady) {
+                on_setStatus("Supabase não está configurado — modo online indisponível.", false);
+            }
+            document.getElementById('online-nick-input').value = myUsername || "";
+            document.getElementById('online-overlay').classList.add('visible');
+            document.getElementById('online-panel').style.display = "flex";
+            document.getElementById('online-waiting-panel').classList.remove('visible');
+            on_setStatus("", true);
+        }
+
+        function closeOnlineOverlay() {
+            document.getElementById('online-overlay').classList.remove('visible');
+        }
+
+        function on_getNick() {
+            const val = document.getElementById('online-nick-input').value.trim();
+            return val ? val.slice(0, 14) : "Jogador";
+        }
+
+        // Cria uma sala nova: sorteia código + semente e fica esperando o parceiro entrar
+        async function on_createRoom() {
+            if (!supabaseReady) { on_setStatus("Supabase indisponível.", false); return; }
+            on_myNick = on_getNick();
+            on_myId = "p_" + Math.random().toString(36).slice(2, 10);
+            on_roomCode = on_generateRoomCode();
+            on_isHost = true;
+            on_seed = Math.floor(Math.random() * 1e9);
+            on_partnerJoined = false;
+
+            on_setStatus("Criando sala...", true);
+            await on_connectChannel(on_roomCode);
+
+            document.getElementById('online-panel').style.display = "none";
+            document.getElementById('online-waiting-panel').classList.add('visible');
+            document.getElementById('online-room-code-display').textContent = on_roomCode;
+        }
+
+        // Entra numa sala existente digitando o código que o host compartilhou
+        async function on_joinRoom() {
+            if (!supabaseReady) { on_setStatus("Supabase indisponível.", false); return; }
+            const code = document.getElementById('online-code-input').value.trim().toUpperCase();
+            if (!/^[A-Z]{4}$/.test(code)) {
+                on_setStatus("Digite o código de 4 letras da sala.", false);
+                return;
+            }
+            on_myNick = on_getNick();
+            on_myId = "p_" + Math.random().toString(36).slice(2, 10);
+            on_roomCode = code;
+            on_isHost = false;
+            on_partnerJoined = false;
+
+            on_setStatus("Conectando à sala...", true);
+            await on_connectChannel(on_roomCode);
+
+            // Avisa o host que entrou; o host responde com a semente da fase
+            on_channel.send({
+                type: 'broadcast', event: 'join',
+                payload: { id: on_myId, nick: on_myNick }
+            });
+
+            on_setStatus("Conectado! Aguardando confirmação do host...", true);
+        }
+
+        function on_cancelRoom() {
+            on_teardownChannel();
+            document.getElementById('online-panel').style.display = "flex";
+            document.getElementById('online-waiting-panel').classList.remove('visible');
+            on_setStatus("", true);
+        }
+
+        function on_teardownChannel() {
+            if (on_channel) {
+                supabaseClient.removeChannel(on_channel);
+                on_channel = null;
+            }
+            if (on_sendTimer) { clearInterval(on_sendTimer); on_sendTimer = null; }
+            on_partnerJoined = false;
+        }
+
+        // Assina o canal Realtime da sala e liga os eventos de broadcast
+        function on_connectChannel(roomCode) {
+            return new Promise((resolve) => {
+                if (on_channel) on_teardownChannel();
+
+                on_channel = supabaseClient.channel(`online-room-${roomCode}`, {
+                    config: { broadcast: { self: false } }
+                });
+
+                on_channel
+                    .on('broadcast', { event: 'join' }, ({ payload }) => {
+                        // Só o host reage: alguém entrou, então manda a semente da fase
+                        if (on_isHost && !on_partnerJoined) {
+                            on_partnerJoined = true;
+                            on_partnerNick = payload.nick || "Amigo";
+                            on_channel.send({
+                                type: 'broadcast', event: 'seed',
+                                payload: { seed: on_seed, hostNick: on_myNick }
+                            });
+                            on_beginOnlineMatch();
+                        }
+                    })
+                    .on('broadcast', { event: 'seed' }, ({ payload }) => {
+                        // Só quem entrou (não-host) reage: recebe a semente e começa
+                        if (!on_isHost && !on_partnerJoined) {
+                            on_partnerJoined = true;
+                            on_seed = payload.seed;
+                            on_partnerNick = payload.hostNick || "Amigo";
+                            on_beginOnlineMatch();
+                        }
+                    })
+                    .on('broadcast', { event: 'state' }, ({ payload }) => {
+                        if (payload.id === on_myId) return; // ignora o próprio eco
+                        on_remotePlayer.targetX = payload.x;
+                        on_remotePlayer.targetY = payload.y;
+                        on_remotePlayer.facing = payload.facing;
+                        on_remotePlayer.isRolling = payload.rolling;
+                        on_remotePlayer.isFlying = payload.flying;
+                        on_remotePlayer.rings = payload.rings;
+                        on_remotePlayer.score = payload.score;
+                        on_remotePlayer.lives = payload.lives;
+                        on_remotePlayer.connected = true;
+                    })
+                    .on('broadcast', { event: 'stage' }, ({ payload }) => {
+                        // O host avançou de fase — o outro lado acompanha
+                        if (payload.stage !== on_currentStage) {
+                            on_loadStage(payload.stage);
+                        }
+                    })
+                    .subscribe((status) => {
+                        if (status === 'SUBSCRIBED') resolve();
+                    });
+            });
+        }
+
+        // Chamado quando os 2 lados já têm a mesma semente — monta a fase e começa a partida
+        function on_beginOnlineMatch() {
+            closeOnlineOverlay();
+
+            const charKey = on_isHost ? "sonic" : "tails";
+            const partnerCharKey = on_isHost ? "tails" : "sonic";
+            on_localPlayer = on_makeLocalPlayer(charKey);
+            on_remotePlayer = on_makeRemotePlayer(partnerCharKey);
+            on_remotePlayer.connected = true;
+
+            on_loadStage(0);
+
+            gameState = "online";
+            startMusic("normal");
+            getAudioCtx();
+
+            // Transmite a posição do jogador local ~15x por segundo
+            if (on_sendTimer) clearInterval(on_sendTimer);
+            on_sendTimer = setInterval(on_broadcastState, 66);
+        }
+
+        function on_broadcastState() {
+            if (!on_channel || gameState !== "online") return;
+            on_channel.send({
+                type: 'broadcast', event: 'state',
+                payload: {
+                    id: on_myId,
+                    x: on_localPlayer.x, y: on_localPlayer.y,
+                    facing: on_localPlayer.facing,
+                    rolling: on_localPlayer.isRolling || on_localPlayer.isSpinDashing,
+                    flying: on_localPlayer.isFlying,
+                    rings: on_localPlayer.rings, score: on_localPlayer.score, lives: on_localPlayer.lives
+                }
+            });
+        }
+
+        function on_generateClouds(rng) {
+            on_clouds = [];
+            for (let i = 0; i < 12; i++) {
+                on_clouds.push({
+                    x: rng() * on_levelWidth * 1.3,
+                    y: 30 + rng() * 100,
+                    scale: 0.5 + rng() * 0.8,
+                    speed: 0.15 + rng() * 0.15
+                });
+            }
+        }
+
+        // Monta a fase de forma determinística: com a mesma seed, os 2 lados
+        // geram exatamente os mesmos anéis/inimigos/nuvens, sem precisar
+        // sincronizar esses objetos pela rede.
+        function on_loadStage(stageIdx) {
+            on_currentStage = stageIdx;
+            on_levelWidth = 2200 + stageIdx * 350;
+            on_finishX = on_levelWidth - 150;
+
+            const rng = on_makeSeededRng(on_seed + stageIdx * 7919); // offset por fase
+
+            on_localPlayer.x = 80; on_localPlayer.y = 300;
+            on_localPlayer.vx = 0; on_localPlayer.vy = 0;
+            on_localPlayer.invulnerableTimer = 60;
+
+            on_ringObjects = [];
+            for (let x = 300; x < on_levelWidth - 300; x += 160 + rng() * 180) {
+                on_ringObjects.push({ x, y: 340, collected: false });
+                on_ringObjects.push({ x: x + 36, y: 340, collected: false });
+            }
+
+            on_enemies = [];
+            const enemyCount = 3 + stageIdx * 2;
+            for (let i = 0; i < enemyCount; i++) {
+                const ex = 450 + (i * (on_levelWidth - 650) / enemyCount);
+                const typeRoll = i % 3;
+                if (typeRoll === 0) {
+                    on_enemies.push({ type: "shooter", x: ex, y: 360, width: 32, height: 20, vx: -0.6, startX: ex - 60, endX: ex + 60, alive: true, shootTimer: Math.floor(rng()*90), bullets: [] });
+                } else if (typeRoll === 1) {
+                    on_enemies.push({ type: "melee", x: ex, y: 360, width: 32, height: 20, vx: -1.3, startX: ex - 80, endX: ex + 80, alive: true, charging: false, chargeCooldown: 0 });
+                } else {
+                    on_enemies.push({ type: "flyer", x: ex, y: 220 + rng()*50, width: 32, height: 22, alive: true, baseY: 220 + rng()*50, flyPhase: rng()*Math.PI*2, vx: -1.0, startX: ex - 100, endX: ex + 100, shootTimer: Math.floor(rng()*100), bullets: [] });
+                }
+            }
+
+            on_ramps = [{ startX: 700, endX: 900, peakY: 240 }];
+            on_generateClouds(rng);
+
+            // O host avisa o parceiro que a fase mudou, pra ambos ficarem sincronizados
+            if (on_isHost && on_channel) {
+                on_channel.send({ type: 'broadcast', event: 'stage', payload: { stage: stageIdx } });
+            }
+        }
+
+        function on_exitToMenu() {
+            on_teardownChannel();
+            gameState = "menu";
+            stopMusic();
+        }
+
+        // Física do jogador local no modo online — mesma base do modo 2P local,
+        // mas sem colisão com o parceiro (é cooperativo, não PvP).
+        function on_updateLocalPlayer() {
+            const p = on_localPlayer;
+            const character = CHARACTERS[p.charKey];
+            const accel = 0.25, friction = 0.96, gravity = 0.5, jumpForce = -11, maxSpeed = 8;
+
+            const controls = { left: "ArrowLeft", right: "ArrowRight", up: "ArrowUp", down: "ArrowDown", jump: " ",
+                                altLeft: "a", altRight: "d", altJump: "w" };
+
+            if (p.invulnerableTimer > 0) p.invulnerableTimer--;
+
+            const downHeld = keys[controls.down] || keys["s"] || keys["S"];
+            const jumpHeld = keys[controls.jump] || keys["w"] || keys["W"] || keys[controls.up];
+
+            if (p.isGrounded && downHeld) {
+                if (Math.abs(p.vx) < 0.5) {
+                    p.vx = 0;
+                    p.isCrouching = true;
+                    if (jumpHeld) {
+                        if (p.spinDashCharge === 0) sfx.jump();
+                        p.isSpinDashing = true;
+                        p.spinDashCharge = Math.min(p.spinDashCharge + 1, 5);
+                    }
+                } else {
+                    p.isRolling = true;
+                }
+            } else {
+                p.isCrouching = false;
+            }
+
+            if (!p.isSpinDashing && !p.isCrouching) {
+                if (keys[controls.right] || keys["d"] || keys["D"]) { if (p.vx < maxSpeed) p.vx += accel; p.facing = 1; }
+                else if (keys[controls.left] || keys["a"] || keys["A"]) { if (p.vx > -maxSpeed) p.vx -= accel; p.facing = -1; }
+                else { p.vx *= friction; }
+            }
+
+            if (p.isRolling) {
+                p.vx *= 0.98;
+                if (Math.abs(p.vx) < 0.5) p.isRolling = false;
+            }
+
+            if (jumpHeld && p.isGrounded && !p.isCrouching) {
+                p.vy = jumpForce;
+                p.isGrounded = false;
+                p.isRolling = true;
+                sfx.jump();
+            }
+
+            // Double-tap: 1 clique no ar = pulo normal, 2 cliques = ativa voo (Tails)
+            if (p.jumpTapTimer > 0) {
+                p.jumpTapTimer--;
+                if (p.jumpTapTimer === 0) p.jumpTapCount = 0;
+            }
+            if (character.canFly && p.flightModeActive && !p.isGrounded && jumpHeld && p.flyFuel > 0) {
+                p.isFlying = true;
+                p.vy = Math.max(p.vy - 0.9, -2.2);
+                p.flyFuel = Math.max(0, p.flyFuel - 1);
+            } else {
+                p.isFlying = false;
+                if (p.flyFuel <= 0 || !jumpHeld) p.flightModeActive = false;
+            }
+            if (p.isGrounded) {
+                p.flyFuel = Math.min(p.flyFuelMax, p.flyFuel + 2);
+                p.flightModeActive = false;
+                p.jumpTapCount = 0;
+                p.jumpTapTimer = 0;
+            }
+
+            p.vy += gravity * (p.isFlying ? 0.35 : 1);
+            p.x += p.vx;
+            p.y += p.vy;
+
+            if (p.x - p.radius < 0) { p.x = p.radius; p.vx = 0; }
+            if (p.x + p.radius > on_levelWidth) { p.x = on_levelWidth - p.radius; p.vx = 0; }
+
+            let currentGroundY = ON_GROUND_Y;
+            for (const ramp of on_ramps) {
+                if (p.x >= ramp.startX && p.x <= ramp.endX) {
+                    const progress = (p.x - ramp.startX) / (ramp.endX - ramp.startX);
+                    currentGroundY = ON_GROUND_Y - Math.sin(progress * Math.PI) * (ON_GROUND_Y - ramp.peakY);
+                }
+            }
+
+            if (p.y + p.radius >= currentGroundY) {
+                p.y = currentGroundY - p.radius;
+                p.vy = 0;
+                p.isGrounded = true;
+                if (Math.abs(p.vx) < 0.5) p.isRolling = false;
+            } else {
+                p.isGrounded = false;
+            }
+
+            p.angle += p.vx * 0.15;
+            p.cameraX = p.x - canvas.width / 3;
+            p.cameraX = Math.max(0, Math.min(on_levelWidth - canvas.width, p.cameraX));
+
+            // Anéis
+            const ringMagnetOwned = SHOP_ITEMS.find(i => i.id === "ringMagnet" && i.owned);
+            const ringRange = p.radius + (ringMagnetOwned ? 45 : 10);
+            on_ringObjects.forEach(ring => {
+                if (!ring.collected) {
+                    const dist = Math.hypot(p.x - ring.x, p.y - ring.y);
+                    if (dist < ringRange) {
+                        ring.collected = true;
+                        p.rings++;
+                        p.score += 100;
+                        sfx.ring();
+                    }
+                }
+            });
+
+            // Passar de fase — quem chega primeiro leva os dois adiante (só o host oficializa,
+            // pra evitar os 2 lados tentando avançar ao mesmo tempo em momentos diferentes)
+            if (p.x >= on_finishX) {
+                if (on_isHost) {
+                    if (on_currentStage < ON_STAGE_COUNT - 1) {
+                        on_loadStage(on_currentStage + 1);
+                    } else {
+                        on_finishMatch();
+                    }
+                } else {
+                    // Não-host apenas segura na bandeira aguardando o host avançar
+                    p.x = on_finishX - 5;
+                    p.vx = 0;
+                }
+            }
+        }
+
+        function on_takeDamage(p) {
+            if (p.invulnerableTimer > 0) return;
+            p.invulnerableTimer = 90;
+            if (p.rings > 0) {
+                p.rings = 0;
+                p.vy = -6;
+                p.vx = -p.facing * 5;
+                sfx.hit();
+            } else {
+                p.lives--;
+                sfx.hit();
+                if (p.lives <= 0) {
+                    on_finishMatch();
+                } else {
+                    p.x = 80; p.y = 300; p.vx = 0; p.vy = 0;
+                    p.invulnerableTimer = 90;
+                }
+            }
+        }
+
+        function on_finishMatch() {
+            sfx.win();
+            on_teardownChannel();
+            stopMusic();
+            gameState = "menu";
+        }
+
+        function on_update() {
+            if (gameState !== "online") return;
+
+            on_updateLocalPlayer();
+
+            // Suaviza a posição do parceiro remoto até o último valor recebido
+            // (interpolação simples: anda uma fração da distância a cada frame)
+            const lerp = 0.25;
+            on_remotePlayer.x += (on_remotePlayer.targetX - on_remotePlayer.x) * lerp;
+            on_remotePlayer.y += (on_remotePlayer.targetY - on_remotePlayer.y) * lerp;
+
+            on_clouds.forEach(c => {
+                c.x -= c.speed;
+                if (c.x < -200) c.x = on_levelWidth + 200;
+            });
+
+            const p = on_localPlayer;
+            on_enemies.forEach(enemy => {
+                if (!enemy.alive) return;
+
+                if (enemy.type === "shooter" || enemy.type === "melee") {
+                    enemy.x += enemy.vx;
+                    if (enemy.x < enemy.startX || enemy.x > enemy.endX) enemy.vx *= -1;
+                } else if (enemy.type === "flyer") {
+                    enemy.x += enemy.vx;
+                    if (enemy.x < enemy.startX || enemy.x > enemy.endX) enemy.vx *= -1;
+                    enemy.flyPhase += 0.04;
+                    enemy.y = enemy.baseY + Math.sin(enemy.flyPhase) * 30;
+                }
+
+                const dist = Math.hypot(p.x - enemy.x, p.y - enemy.y);
+                if (dist < p.radius + 16) {
+                    if (p.vy > 0 || p.isRolling || p.isSpinDashing) {
+                        enemy.alive = false;
+                        p.vy = -7;
+                        p.score += 200;
+                        sfx.stomp();
+                    } else {
+                        on_takeDamage(p);
+                    }
+                }
+            });
+
+            // Reconexão: se não recebermos nada do parceiro por muito tempo, avisa na tela
+            on_connectionStatus = on_remotePlayer.connected ? "" : "Conectando ao parceiro...";
+        }
+
+        function on_renderScene() {
+            const theme = NORMAL_THEMES[on_currentStage] || NORMAL_THEMES[0];
+            const p = on_localPlayer;
+
+            ctx.fillStyle = theme.sky;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            ctx.save();
+            ctx.translate(-p.cameraX, 0);
+
+            on_clouds.forEach(c => drawCloud(c.x, c.y, c.scale));
+
+            ctx.fillStyle = theme.top;
+            ctx.fillRect(0, ON_GROUND_Y, on_levelWidth, 15);
+            ctx.fillStyle = theme.bottom;
+            ctx.fillRect(0, ON_GROUND_Y + 15, on_levelWidth, canvas.height - ON_GROUND_Y);
+
+            for (const ramp of on_ramps) {
+                ctx.beginPath();
+                ctx.moveTo(ramp.startX, ON_GROUND_Y);
+                for (let x = ramp.startX; x <= ramp.endX; x += 5) {
+                    const progress = (x - ramp.startX) / (ramp.endX - ramp.startX);
+                    const y = ON_GROUND_Y - Math.sin(progress * Math.PI) * (ON_GROUND_Y - ramp.peakY);
+                    ctx.lineTo(x, y);
+                }
+                ctx.lineTo(ramp.endX, ON_GROUND_Y);
+                ctx.fillStyle = theme.top;
+                ctx.fill();
+            }
+
+            // Bandeira de chegada
+            ctx.fillStyle = "#fff";
+            ctx.fillRect(on_finishX, ON_GROUND_Y - 40, 6, 40);
+            ctx.fillStyle = "#ff0000";
+            ctx.fillRect(on_finishX + 6, ON_GROUND_Y - 40, 20, 15);
+
+            // Anéis
+            const ringFrame = Math.floor(Date.now() / 120) % 4;
+            on_ringObjects.forEach(ring => {
+                if (!ring.collected) {
+                    ctx.save();
+                    ctx.translate(ring.x, ring.y);
+                    ctx.fillStyle = "#ffeb3b";
+                    const wf = [1, 0.6, 0.2, 0.6][ringFrame];
+                    ctx.beginPath();
+                    ctx.ellipse(0, 0, 8 * wf, 10, 0, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.restore();
+                }
+            });
+
+            // Inimigos
+            const enemyFallbackColor = { shooter: "#e53935", melee: "#2e7d32", flyer: "#ff9800" };
+            const enemySpriteMap = { shooter: sprites.enemyShooter, melee: sprites.enemyMelee, flyer: sprites.enemyFlyer };
+            on_enemies.forEach(enemy => {
+                if (!enemy.alive) return;
+                const spr = enemySpriteMap[enemy.type];
+                if (spr) {
+                    ctx.drawImage(spr, enemy.x - 16, enemy.y - 10, enemy.width, enemy.height);
+                } else {
+                    ctx.fillStyle = enemyFallbackColor[enemy.type] || "#e53935";
+                    ctx.fillRect(enemy.x - 16, enemy.y - 10, enemy.width, enemy.height);
+                }
+            });
+
+            // Desenha um jogador (local ou remoto) reaproveitando os sprites do personagem
+            function drawOnlinePlayer(pl, isLocal) {
+                const pc = CHARACTERS[pl.charKey];
+                ctx.save();
+                ctx.translate(pl.x, pl.y);
+
+                const rolling = pl.isRolling;
+                const rollSprite = sprites[pc.rollSpriteKey];
+                let idleSprite;
+                if (pc.canFly && pc.walkSpriteKey && sprites[pc.walkSpriteKey] && !pl.isFlying) {
+                    idleSprite = sprites[pc.walkSpriteKey];
+                } else {
+                    idleSprite = sprites[pc.spriteKey];
+                }
+                const usingDedicatedRollSprite = rolling && !!rollSprite;
+                const spriteToUse = usingDedicatedRollSprite ? rollSprite : idleSprite;
+
+                if (spriteToUse) {
+                    ctx.rotate((rolling && !usingDedicatedRollSprite) ? pl.angle : 0);
+                    ctx.scale(pl.facing, 1);
+                    ctx.imageSmoothingEnabled = false;
+                    ctx.drawImage(spriteToUse, -16, -20, 32, 32);
+                    ctx.imageSmoothingEnabled = true;
+                } else if (rolling) {
+                    ctx.rotate(pl.angle);
+                    ctx.fillStyle = pc.color;
+                    ctx.beginPath();
+                    ctx.arc(0, 0, 16, 0, Math.PI * 2);
+                    ctx.fill();
+                } else {
+                    ctx.scale(pl.facing, 1);
+                    ctx.fillStyle = pc.color;
+                    ctx.beginPath();
+                    ctx.arc(0, -4, 12, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+                ctx.restore();
+
+                // Etiqueta com o apelido, para diferenciar quem é quem
+                ctx.fillStyle = isLocal ? "#ffeb3b" : "#00e5ff";
+                ctx.font = 'bold 10px "Courier New"';
+                ctx.textAlign = "center";
+                const label = isLocal ? `${on_myNick} (você)` : on_partnerNick;
+                ctx.fillText(label, pl.x, pl.y - 28);
+            }
+
+            // Parceiro remoto primeiro (fica atrás visualmente se sobrepor)
+            if (on_remotePlayer.connected) {
+                drawOnlinePlayer(on_remotePlayer, false);
+            }
+
+            const blinking = p.invulnerableTimer > 0 && Math.floor(p.invulnerableTimer / 5) % 2 === 0;
+            if (!blinking) drawOnlinePlayer(p, true);
+
+            ctx.restore();
+
+            // HUD: dados dos 2 jogadores, lado a lado no topo
+            function drawHudBox(x, nick, pl, color) {
+                ctx.fillStyle = "rgba(0,0,0,0.55)";
+                ctx.fillRect(x, 8, 190, 44);
+                ctx.strokeStyle = color;
+                ctx.lineWidth = 2;
+                ctx.strokeRect(x, 8, 190, 44);
+                ctx.textAlign = "left";
+                ctx.fillStyle = color;
+                ctx.font = 'bold 12px "Courier New"';
+                ctx.fillText(`${nick} — ${CHARACTERS[pl.charKey].name}`, x + 8, 24);
+                ctx.fillStyle = "#fff";
+                ctx.font = '11px "Courier New"';
+                ctx.fillText(`Anéis: ${pl.rings}   Vidas: ${pl.lives}   Pontos: ${pl.score}`, x + 8, 42);
+            }
+            drawHudBox(8, on_myNick + " (você)", p, "#ffeb3b");
+            drawHudBox(canvas.width - 198, on_partnerNick, on_remotePlayer, "#00e5ff");
+
+            ctx.textAlign = "center";
+            ctx.fillStyle = "#aaa";
+            ctx.font = '11px "Courier New"';
+            ctx.fillText(`FASE ${on_currentStage + 1} / ${ON_STAGE_COUNT}  —  Sala ${on_roomCode}  —  [ESC] Sair`, canvas.width / 2, canvas.height - 8);
+
+            if (on_connectionStatus) {
+                ctx.fillStyle = "#ff5252";
+                ctx.font = 'bold 13px "Courier New"';
+                ctx.fillText(on_connectionStatus, canvas.width / 2, 70);
+            }
+        }
+
+        // ESC sai da sala online a qualquer momento
+        window.addEventListener('keydown', (e) => {
+            if (gameState === "online" && e.key === "Escape") {
+                on_exitToMenu();
+            }
+        });
+
+        // Solta o Spin Dash ao soltar a tecla "baixo" no modo online
+        window.addEventListener('keyup', (e) => {
+            if (gameState !== "online") return;
+            if ((e.key === "ArrowDown" || e.key === "s" || e.key === "S") && on_localPlayer.isSpinDashing) {
+                on_localPlayer.isSpinDashing = false;
+                on_localPlayer.isRolling = true;
+                on_localPlayer.vx = on_localPlayer.facing * (8 + on_localPlayer.spinDashCharge * 2.5);
+                on_localPlayer.spinDashCharge = 0;
+            }
+        });
+
+        // Double-tap de pulo no modo online (voo do Tails)
+        window.addEventListener('keydown', (e) => {
+            if (gameState !== "online" || e.repeat) return;
+            if (e.key === " " || e.key === "w" || e.key === "W" || e.key === "ArrowUp") {
+                const character = CHARACTERS[on_localPlayer.charKey];
+                if (!character.canFly) return;
+                const p = on_localPlayer;
+                if (p.isGrounded) {
+                    p.jumpTapCount = 0;
+                    p.flightModeActive = false;
+                    return;
+                }
+                if (p.jumpTapTimer > 0 && p.jumpTapCount === 1) {
+                    p.jumpTapCount = 0;
+                    p.jumpTapTimer = 0;
+                    if (p.flyFuel > 0) {
+                        p.flightModeActive = true;
+                        sfx.jump();
+                    }
+                } else {
+                    p.jumpTapCount = 1;
+                    p.jumpTapTimer = DOUBLE_TAP_WINDOW;
+                }
+            }
+        });
+
+        // Liga os botões da tela de sala online assim que a página carrega
+        window.addEventListener('DOMContentLoaded', () => {
+            const createBtn = document.getElementById('online-create-btn');
+            const joinBtn = document.getElementById('online-join-btn');
+            const backBtn = document.getElementById('online-back-btn');
+            const cancelBtn = document.getElementById('online-cancel-btn');
+            if (createBtn) createBtn.addEventListener('click', on_createRoom);
+            if (joinBtn) joinBtn.addEventListener('click', on_joinRoom);
+            if (backBtn) backBtn.addEventListener('click', closeOnlineOverlay);
+            if (cancelBtn) cancelBtn.addEventListener('click', on_cancelRoom);
+            const codeInput = document.getElementById('online-code-input');
+            if (codeInput) {
+                codeInput.addEventListener('input', () => {
+                    codeInput.value = codeInput.value.toUpperCase().replace(/[^A-Z]/g, "").slice(0, 4);
+                });
+                codeInput.addEventListener('keydown', (e) => { if (e.key === "Enter") on_joinRoom(); });
+            }
+        });
+        /* ================== FIM DO MÓDULO ONLINE ================== */
 
         /* =====================================================================
            CONTROLES TOUCH (CELULAR) — detecta dispositivo com toque e liga
@@ -3644,6 +4719,9 @@
             if (gameState === "multiplayer") {
                 mp_update();
                 mp_render();
+            } else if (gameState === "online") {
+                on_update();
+                on_renderScene();
             } else {
                 update();
                 render();
