@@ -619,10 +619,10 @@
             <button id="chat-close-btn">FECHAR</button>
         </div>
 
-        <!-- Sala online — criar ou entrar em uma partida de 2 jogadores pela internet -->
+        <!-- Sala online — criar ou entrar em uma partida de até 3 jogadores pela internet -->
         <div id="online-overlay">
             <h2>🌐 JOGAR ONLINE</h2>
-            <p class="online-subtitle">2 jogadores, mesma fase, em tempo real</p>
+            <p class="online-subtitle">Até 3 jogadores, mesma fase, em tempo real</p>
 
             <div id="online-panel">
                 <input id="online-nick-input" type="text" placeholder="Seu apelido" maxlength="14">
@@ -635,12 +635,14 @@
             </div>
 
             <div id="online-waiting-panel">
-                <p style="color:#aaa; font-size:12px;">Compartilhe este código com seu amigo:</p>
+                <p style="color:#aaa; font-size:12px;">Compartilhe este código com seus amigos:</p>
                 <div id="online-room-code-display">----</div>
+                <div id="online-player-list" style="display:flex; flex-direction:column; gap:4px; width:100%; margin: 4px 0;"></div>
                 <div style="display:flex; align-items:center; gap:8px;">
                     <div id="online-pulse"></div>
-                    <span id="online-waiting-hint">Aguardando o outro jogador...</span>
+                    <span id="online-waiting-hint">Aguardando jogadores...</span>
                 </div>
+                <button id="online-start-btn" style="font-family:'Courier New',Courier,monospace; font-weight:bold; padding:9px 16px; border-radius:4px; border:2px solid #fff; cursor:pointer; background:#00695c; color:#fff; margin-top:8px; display:none;">▶ COMEÇAR PARTIDA</button>
                 <button id="online-cancel-btn" style="font-family:'Courier New',Courier,monospace; font-weight:bold; padding:9px 16px; border-radius:4px; border:2px solid #fff; cursor:pointer; background:#555; color:#fff; margin-top:8px;">CANCELAR</button>
             </div>
         </div>
@@ -3922,7 +3924,7 @@
         /* ================== FIM DO MÓDULO DE 2 JOGADORES ================== */
 
         /* =====================================================================
-           MODO ONLINE — 2 jogadores pela internet, na mesma fase, em tempo real.
+           MODO ONLINE — até 3 jogadores pela internet, na mesma fase, em tempo real.
            =====================================================================
            Como funciona:
            - Usa o Supabase Realtime (recurso "Broadcast" de canais) — não precisa
@@ -3930,29 +3932,32 @@
              lá em cima para login/chat.
            - Uma sala = um canal chamado "online-room-XXXX" (XXXX = código de 4
              letras). Quem cria a sala é o "host": ele sorteia a semente (seed)
-             que gera a fase, e os dois lados geram a MESMA fase localmente a
+             que gera a fase, e todos os lados geram a MESMA fase localmente a
              partir dessa semente (em vez de ficar sincronizando cada anel/
              inimigo pela rede, o que seria pesado).
            - Cada jogador só controla o PRÓPRIO boneco com a física de sempre
              (sem lag nenhum no seu personagem) e transmite sua posição ~15x
-             por segundo. A posição do parceiro chega por rede e é suavizada
+             por segundo. A posição dos parceiros chega por rede e é suavizada
              (interpolada) até o valor mais recente, pra não parecer "teleporte".
+           - Até 3 jogadores por sala (1, 2 ou 3 — o host decide quando começar).
+             Personagens são atribuídos automaticamente na ordem de entrada:
+             Sonic → Tails → Knuckles (o próximo disponível).
            - Sem colisão entre os jogadores (é cooperativo, não é PvP): cada um
-             vê o outro correndo/pulando/coletando anéis, mas não pode acertar
-             nem ser acertado pelo parceiro.
+             vê os outros correndo/pulando/coletando anéis, mas não pode acertar
+             nem ser acertado pelos parceiros.
            ===================================================================== */
 
         const ON_STAGE_COUNT = 4;
         const ON_GROUND_Y = 380;
+        const ON_MAX_PLAYERS = 3;
+        const ON_CHAR_ORDER = ["sonic", "tails", "knuckles"]; // ordem de atribuição automática
 
         let on_channel = null;          // canal Realtime da sala (Broadcast)
         let on_roomCode = null;         // código de 4 letras da sala atual
         let on_isHost = false;          // true se este cliente criou a sala
         let on_myNick = "Jogador";
-        let on_partnerNick = "Amigo";
-        let on_partnerJoined = false;
-        let on_seed = 1;                // semente compartilhada — gera a mesma fase nos 2 lados
         let on_myId = null;             // identificador aleatório desta aba/sessão (para ignorar eco)
+        let on_seed = 1;                // semente compartilhada — gera a mesma fase em todos os lados
         let on_sendTimer = null;
         let on_currentStage = 0;
         let on_levelWidth = 2600;
@@ -3961,10 +3966,15 @@
         let on_enemies = [];
         let on_ramps = [];
         let on_clouds = [];
-        let on_connectionStatus = "";   // texto curto mostrado no badge durante o jogo
+        let on_connectionStatus = "";   // texto curto mostrado na tela durante o jogo
+        let on_matchStarted = false;    // true depois que o host aperta "COMEÇAR PARTIDA"
+
+        // Lista de participantes da sala (inclui eu mesmo), na ordem de entrada.
+        // Cada item: { id, nick, isHost, charKey }
+        let on_roomMembers = [];
 
         // Gerador de números pseudo-aleatórios com semente (determinístico) —
-        // assim os dois jogadores montam exatamente a mesma fase sem trocar
+        // assim todos os jogadores montam exatamente a mesma fase sem trocar
         // dados extras pela rede, só a semente inicial.
         function on_makeSeededRng(seed) {
             let s = seed >>> 0;
@@ -3979,6 +3989,13 @@
             let code = "";
             for (let i = 0; i < 4; i++) code += letters[Math.floor(Math.random() * letters.length)];
             return code;
+        }
+
+        // Devolve o primeiro personagem da ordem Sonic→Tails→Knuckles que
+        // ainda não está em uso por nenhum membro atual da sala.
+        function on_nextAvailableChar(members) {
+            const used = new Set(members.map(m => m.charKey).filter(Boolean));
+            return ON_CHAR_ORDER.find(c => !used.has(c)) || null;
         }
 
         // Jogador local (o que EU controlo) — física idêntica ao modo 2P local
@@ -3998,22 +4015,28 @@
             };
         }
 
-        // Jogador remoto (o parceiro) — não roda física própria aqui, só guarda
+        // Jogador remoto (um parceiro) — não roda física própria aqui, só guarda
         // a última posição recebida e interpola visualmente até ela.
-        function on_makeRemotePlayer(charKey) {
+        function on_makeRemotePlayer(id, nick, charKey) {
             return {
-                charKey,
+                id, nick, charKey,
                 x: 80, y: 300, // posição desenhada (suavizada)
                 targetX: 80, targetY: 300, // último valor recebido da rede
                 facing: 1, angle: 0,
                 isRolling: false, isFlying: false,
                 rings: 0, score: 0, lives: 3,
-                connected: false
+                connected: false,
+                lastSeenAt: 0
             };
         }
 
         let on_localPlayer = on_makeLocalPlayer("sonic");
-        let on_remotePlayer = on_makeRemotePlayer("tails");
+        // Mapa de jogadores remotos por id (0, 1 ou 2 entradas — até 2 parceiros)
+        let on_remotePlayers = {};
+
+        function on_remotePlayersList() {
+            return Object.values(on_remotePlayers);
+        }
 
         function on_setStatus(text, ok) {
             const el = document.getElementById('online-status');
@@ -4040,7 +4063,34 @@
             return val ? val.slice(0, 14) : "Jogador";
         }
 
-        // Cria uma sala nova: sorteia código + semente e fica esperando o parceiro entrar
+        // Atualiza a listinha de participantes + botão "COMEÇAR PARTIDA" na tela de espera
+        function on_renderRoomMemberList() {
+            const listEl = document.getElementById('online-player-list');
+            const startBtn = document.getElementById('online-start-btn');
+            const hintEl = document.getElementById('online-waiting-hint');
+            if (!listEl) return;
+
+            listEl.innerHTML = "";
+            on_roomMembers.forEach(m => {
+                const row = document.createElement('div');
+                row.style.cssText = "display:flex; align-items:center; justify-content:center; gap:6px; font-size:12px; color:#fff;";
+                const charName = m.charKey ? CHARACTERS[m.charKey].name : "—";
+                row.textContent = `${m.isHost ? "👑 " : ""}${m.nick} — ${charName}`;
+                listEl.appendChild(row);
+            });
+
+            if (startBtn) {
+                // Só o host vê e pode clicar no botão de começar; precisa de ao menos 1 jogador (ele mesmo)
+                startBtn.style.display = on_isHost ? "block" : "none";
+            }
+            if (hintEl) {
+                hintEl.textContent = on_isHost
+                    ? `${on_roomMembers.length}/${ON_MAX_PLAYERS} jogadores — comece quando quiser`
+                    : "Aguardando o host começar a partida...";
+            }
+        }
+
+        // Cria uma sala nova: sorteia código + semente e fica esperando jogadores entrarem
         async function on_createRoom() {
             if (!supabaseReady) { on_setStatus("Supabase indisponível.", false); return; }
             on_myNick = on_getNick();
@@ -4048,7 +4098,8 @@
             on_roomCode = on_generateRoomCode();
             on_isHost = true;
             on_seed = Math.floor(Math.random() * 1e9);
-            on_partnerJoined = false;
+            on_matchStarted = false;
+            on_roomMembers = [{ id: on_myId, nick: on_myNick, isHost: true, charKey: ON_CHAR_ORDER[0] }];
 
             on_setStatus("Criando sala...", true);
             await on_connectChannel(on_roomCode);
@@ -4056,6 +4107,7 @@
             document.getElementById('online-panel').style.display = "none";
             document.getElementById('online-waiting-panel').classList.add('visible');
             document.getElementById('online-room-code-display').textContent = on_roomCode;
+            on_renderRoomMemberList();
         }
 
         // Entra numa sala existente digitando o código que o host compartilhou
@@ -4070,17 +4122,21 @@
             on_myId = "p_" + Math.random().toString(36).slice(2, 10);
             on_roomCode = code;
             on_isHost = false;
-            on_partnerJoined = false;
+            on_matchStarted = false;
+            on_roomMembers = [];
 
             on_setStatus("Conectando à sala...", true);
             await on_connectChannel(on_roomCode);
 
-            // Avisa o host que entrou; o host responde com a semente da fase
+            // Avisa a sala que entrou; o host responde com a lista atualizada de membros
             on_channel.send({
-                type: 'broadcast', event: 'join',
+                type: 'broadcast', event: 'join_request',
                 payload: { id: on_myId, nick: on_myNick }
             });
 
+            document.getElementById('online-panel').style.display = "none";
+            document.getElementById('online-waiting-panel').classList.add('visible');
+            document.getElementById('online-room-code-display').textContent = on_roomCode;
             on_setStatus("Conectado! Aguardando confirmação do host...", true);
         }
 
@@ -4097,7 +4153,9 @@
                 on_channel = null;
             }
             if (on_sendTimer) { clearInterval(on_sendTimer); on_sendTimer = null; }
-            on_partnerJoined = false;
+            on_roomMembers = [];
+            on_remotePlayers = {};
+            on_matchStarted = false;
         }
 
         // Assina o canal Realtime da sala e liga os eventos de broadcast
@@ -4110,47 +4168,76 @@
                 });
 
                 on_channel
-                    .on('broadcast', { event: 'join' }, ({ payload }) => {
-                        // Só o host reage: alguém entrou, então manda a semente da fase
-                        if (on_isHost && !on_partnerJoined) {
-                            on_partnerJoined = true;
-                            on_partnerNick = payload.nick || "Amigo";
-                            on_channel.send({
-                                type: 'broadcast', event: 'seed',
-                                payload: { seed: on_seed, hostNick: on_myNick }
-                            });
+                    .on('broadcast', { event: 'join_request' }, ({ payload }) => {
+                        // Só o host reage: alguém pediu para entrar
+                        if (!on_isHost) return;
+                        if (on_roomMembers.length >= ON_MAX_PLAYERS) {
+                            // Sala cheia — avisa quem tentou entrar
+                            on_channel.send({ type: 'broadcast', event: 'room_full', payload: { id: payload.id } });
+                            return;
+                        }
+                        if (on_roomMembers.some(m => m.id === payload.id)) return; // já está na sala
+
+                        const charKey = on_nextAvailableChar(on_roomMembers);
+                        on_roomMembers.push({ id: payload.id, nick: payload.nick || "Jogador", isHost: false, charKey });
+                        on_renderRoomMemberList();
+
+                        // Reenvia a lista completa da sala para todo mundo (inclusive o recém-chegado)
+                        on_channel.send({
+                            type: 'broadcast', event: 'room_update',
+                            payload: { members: on_roomMembers, seed: on_seed, started: on_matchStarted, stage: on_currentStage }
+                        });
+                    })
+                    .on('broadcast', { event: 'room_full' }, ({ payload }) => {
+                        if (payload.id !== on_myId) return;
+                        on_setStatus("Essa sala já está cheia (máximo 3 jogadores).", false);
+                        on_teardownChannel();
+                        document.getElementById('online-panel').style.display = "flex";
+                        document.getElementById('online-waiting-panel').classList.remove('visible');
+                    })
+                    .on('broadcast', { event: 'room_update' }, ({ payload }) => {
+                        // Todo mundo (menos o host, que já tem a lista atualizada) sincroniza
+                        // sua cópia da lista de membros a partir do que o host mandou.
+                        if (on_isHost) return;
+                        on_roomMembers = payload.members;
+                        on_seed = payload.seed;
+                        on_renderRoomMemberList();
+                        if (payload.started && !on_matchStarted) {
                             on_beginOnlineMatch();
                         }
                     })
-                    .on('broadcast', { event: 'seed' }, ({ payload }) => {
-                        // Só quem entrou (não-host) reage: recebe a semente e começa
-                        if (!on_isHost && !on_partnerJoined) {
-                            on_partnerJoined = true;
-                            on_seed = payload.seed;
-                            on_partnerNick = payload.hostNick || "Amigo";
-                            on_beginOnlineMatch();
-                        }
+                    .on('broadcast', { event: 'match_start' }, ({ payload }) => {
+                        on_roomMembers = payload.members;
+                        on_seed = payload.seed;
+                        if (!on_matchStarted) on_beginOnlineMatch();
                     })
                     .on('broadcast', { event: 'state' }, ({ payload }) => {
                         if (payload.id === on_myId) return; // ignora o próprio eco
-                        on_remotePlayer.targetX = payload.x;
-                        on_remotePlayer.targetY = payload.y;
-                        on_remotePlayer.facing = payload.facing;
-                        on_remotePlayer.isRolling = payload.rolling;
-                        on_remotePlayer.isFlying = payload.flying;
-                        on_remotePlayer.rings = payload.rings;
-                        on_remotePlayer.score = payload.score;
-                        on_remotePlayer.lives = payload.lives;
-                        on_remotePlayer.connected = true;
+                        let rp = on_remotePlayers[payload.id];
+                        if (!rp) {
+                            const member = on_roomMembers.find(m => m.id === payload.id);
+                            rp = on_makeRemotePlayer(payload.id, payload.nick || (member ? member.nick : "Amigo"), payload.charKey);
+                            on_remotePlayers[payload.id] = rp;
+                        }
+                        rp.targetX = payload.x;
+                        rp.targetY = payload.y;
+                        rp.facing = payload.facing;
+                        rp.isRolling = payload.rolling;
+                        rp.isFlying = payload.flying;
+                        rp.rings = payload.rings;
+                        rp.score = payload.score;
+                        rp.lives = payload.lives;
+                        rp.connected = true;
+                        rp.lastSeenAt = Date.now();
                     })
                     .on('broadcast', { event: 'stage' }, ({ payload }) => {
-                        // O host avançou de fase — o outro lado acompanha
+                        // O host avançou de fase — os outros acompanham
                         if (payload.stage !== on_currentStage) {
                             on_loadStage(payload.stage);
                         }
                     })
                     .on('broadcast', { event: 'enemy_defeated' }, ({ payload }) => {
-                        // O parceiro derrotou um inimigo — marca o mesmo inimigo
+                        // Um parceiro derrotou um inimigo — marca o mesmo inimigo
                         // (mesmo id, mesma fase) como morto também no meu lado.
                         if (payload.stage !== on_currentStage) return;
                         const enemy = on_enemies.find(e => e.id === payload.enemyId);
@@ -4164,15 +4251,36 @@
             });
         }
 
-        // Chamado quando os 2 lados já têm a mesma semente — monta a fase e começa a partida
+        // Chamado pelo host ao clicar "COMEÇAR PARTIDA" — trava a lista de membros
+        // (personagens definitivos) e avisa a sala inteira para começar juntos.
+        function on_hostStartMatch() {
+            if (!on_isHost || on_matchStarted) return;
+            on_matchStarted = true;
+            on_channel.send({
+                type: 'broadcast', event: 'match_start',
+                payload: { members: on_roomMembers, seed: on_seed }
+            });
+            on_beginOnlineMatch();
+        }
+
+        // Chamado quando a partida efetivamente começa (host clicou em começar,
+        // ou o convidado recebeu o aviso de início) — monta a fase e entra no jogo.
         function on_beginOnlineMatch() {
+            on_matchStarted = true;
             closeOnlineOverlay();
 
-            const charKey = on_isHost ? "sonic" : "tails";
-            const partnerCharKey = on_isHost ? "tails" : "sonic";
-            on_localPlayer = on_makeLocalPlayer(charKey);
-            on_remotePlayer = on_makeRemotePlayer(partnerCharKey);
-            on_remotePlayer.connected = true;
+            const me = on_roomMembers.find(m => m.id === on_myId);
+            const myCharKey = me ? me.charKey : ON_CHAR_ORDER[0];
+            on_localPlayer = on_makeLocalPlayer(myCharKey);
+
+            on_remotePlayers = {};
+            on_roomMembers.forEach(m => {
+                if (m.id === on_myId) return;
+                const rp = on_makeRemotePlayer(m.id, m.nick, m.charKey);
+                rp.connected = true; // presume conectado; se o broadcast de estado não chegar, o timeout de conexão cuida disso
+                rp.lastSeenAt = Date.now();
+                on_remotePlayers[m.id] = rp;
+            });
 
             on_loadStage(0);
 
@@ -4191,6 +4299,8 @@
                 type: 'broadcast', event: 'state',
                 payload: {
                     id: on_myId,
+                    nick: on_myNick,
+                    charKey: on_localPlayer.charKey,
                     x: on_localPlayer.x, y: on_localPlayer.y,
                     facing: on_localPlayer.facing,
                     rolling: on_localPlayer.isRolling || on_localPlayer.isSpinDashing,
@@ -4212,7 +4322,7 @@
             }
         }
 
-        // Monta a fase de forma determinística: com a mesma seed, os 2 lados
+        // Monta a fase de forma determinística: com a mesma seed, todos os lados
         // geram exatamente os mesmos anéis/inimigos/nuvens, sem precisar
         // sincronizar esses objetos pela rede.
         function on_loadStage(stageIdx) {
@@ -4249,7 +4359,7 @@
             on_ramps = [{ startX: 700, endX: 900, peakY: 240 }];
             on_generateClouds(rng);
 
-            // O host avisa o parceiro que a fase mudou, pra ambos ficarem sincronizados
+            // O host avisa a sala que a fase mudou, pra todos ficarem sincronizados
             if (on_isHost && on_channel) {
                 on_channel.send({ type: 'broadcast', event: 'stage', payload: { stage: stageIdx } });
             }
@@ -4262,7 +4372,7 @@
         }
 
         // Física do jogador local no modo online — mesma base do modo 2P local,
-        // mas sem colisão com o parceiro (é cooperativo, não PvP).
+        // mas sem colisão com os parceiros (é cooperativo, não PvP).
         function on_updateLocalPlayer() {
             const p = on_localPlayer;
             const character = CHARACTERS[p.charKey];
@@ -4373,8 +4483,8 @@
                 }
             });
 
-            // Passar de fase — quem chega primeiro leva os dois adiante (só o host oficializa,
-            // pra evitar os 2 lados tentando avançar ao mesmo tempo em momentos diferentes)
+            // Passar de fase — quem chega primeiro leva todos adiante (só o host oficializa,
+            // pra evitar múltiplos lados tentando avançar ao mesmo tempo em momentos diferentes)
             if (p.x >= on_finishX) {
                 if (on_isHost) {
                     if (on_currentStage < ON_STAGE_COUNT - 1) {
@@ -4422,11 +4532,16 @@
 
             on_updateLocalPlayer();
 
-            // Suaviza a posição do parceiro remoto até o último valor recebido
+            // Suaviza a posição de cada parceiro remoto até o último valor recebido
             // (interpolação simples: anda uma fração da distância a cada frame)
             const lerp = 0.25;
-            on_remotePlayer.x += (on_remotePlayer.targetX - on_remotePlayer.x) * lerp;
-            on_remotePlayer.y += (on_remotePlayer.targetY - on_remotePlayer.y) * lerp;
+            const now = Date.now();
+            on_remotePlayersList().forEach(rp => {
+                rp.x += (rp.targetX - rp.x) * lerp;
+                rp.y += (rp.targetY - rp.y) * lerp;
+                // Se não recebermos nada desse parceiro por um tempo, marca como desconectado
+                if (rp.lastSeenAt && now - rp.lastSeenAt > 5000) rp.connected = false;
+            });
 
             on_clouds.forEach(c => {
                 c.x -= c.speed;
@@ -4454,8 +4569,8 @@
                         p.vy = -7;
                         p.score += 200;
                         sfx.stomp();
-                        // Avisa o parceiro pela rede que este inimigo foi derrotado,
-                        // pra ele também sumir do lado dele.
+                        // Avisa a sala pela rede que este inimigo foi derrotado,
+                        // pra ele também sumir do lado dos outros.
                         if (on_channel) {
                             on_channel.send({
                                 type: 'broadcast', event: 'enemy_defeated',
@@ -4468,8 +4583,11 @@
                 }
             });
 
-            // Reconexão: se não recebermos nada do parceiro por muito tempo, avisa na tela
-            on_connectionStatus = on_remotePlayer.connected ? "" : "Conectando ao parceiro...";
+            // Status de conexão mostrado na tela: lista quem ainda não conectou/reconectou
+            const disconnected = on_remotePlayersList().filter(rp => !rp.connected);
+            on_connectionStatus = disconnected.length
+                ? `Conectando: ${disconnected.map(rp => rp.nick).join(", ")}...`
+                : "";
         }
 
         function on_renderScene() {
@@ -4538,8 +4656,9 @@
             });
 
             // Desenha um jogador (local ou remoto) reaproveitando os sprites do personagem
-            function drawOnlinePlayer(pl, isLocal) {
+            function drawOnlinePlayer(pl, isLocal, label, invulnerable) {
                 const pc = CHARACTERS[pl.charKey];
+                if (!pc) return;
                 ctx.save();
                 ctx.translate(pl.x, pl.y);
 
@@ -4579,27 +4698,26 @@
                 ctx.fillStyle = isLocal ? "#ffeb3b" : "#00e5ff";
                 ctx.font = 'bold 10px "Courier New"';
                 ctx.textAlign = "center";
-                const label = isLocal ? `${on_myNick} (você)` : on_partnerNick;
                 ctx.fillText(label, pl.x, pl.y - 28);
             }
 
-            // Parceiro remoto primeiro (fica atrás visualmente se sobrepor)
-            if (on_remotePlayer.connected) {
-                drawOnlinePlayer(on_remotePlayer, false);
-            }
+            // Parceiros remotos primeiro (ficam atrás visualmente se sobrepor)
+            on_remotePlayersList().forEach(rp => {
+                if (rp.connected) drawOnlinePlayer(rp, false, rp.nick);
+            });
 
             const blinking = p.invulnerableTimer > 0 && Math.floor(p.invulnerableTimer / 5) % 2 === 0;
-            if (!blinking) drawOnlinePlayer(p, true);
+            if (!blinking) drawOnlinePlayer(p, true, `${on_myNick} (você)`);
 
             ctx.restore();
 
-            // HUD: dados dos 2 jogadores, lado a lado no topo
+            // HUD: dados de todos os jogadores da sala, distribuídos no topo
             function drawHudBox(x, nick, pl, color) {
                 ctx.fillStyle = "rgba(0,0,0,0.55)";
-                ctx.fillRect(x, 8, 190, 44);
+                ctx.fillRect(x, 8, 188, 44);
                 ctx.strokeStyle = color;
                 ctx.lineWidth = 2;
-                ctx.strokeRect(x, 8, 190, 44);
+                ctx.strokeRect(x, 8, 188, 44);
                 ctx.textAlign = "left";
                 ctx.fillStyle = color;
                 ctx.font = 'bold 12px "Courier New"';
@@ -4608,8 +4726,19 @@
                 ctx.font = '11px "Courier New"';
                 ctx.fillText(`Anéis: ${pl.rings}   Vidas: ${pl.lives}   Pontos: ${pl.score}`, x + 8, 42);
             }
-            drawHudBox(8, on_myNick + " (você)", p, "#ffeb3b");
-            drawHudBox(canvas.width - 198, on_partnerNick, on_remotePlayer, "#00e5ff");
+
+            // Monta a lista de caixas de HUD: eu + parceiros conectados (até 3 no total),
+            // distribuídas de forma equilibrada ao longo do topo da tela.
+            const hudEntries = [{ nick: on_myNick + " (você)", pl: p, color: "#ffeb3b" }];
+            on_remotePlayersList().forEach((rp, i) => {
+                if (rp.connected) hudEntries.push({ nick: rp.nick, pl: rp, color: i === 0 ? "#00e5ff" : "#ff9e80" });
+            });
+            const boxW = 188, gap = 8, totalW = hudEntries.length * boxW + (hudEntries.length - 1) * gap;
+            let hudX = (canvas.width - totalW) / 2;
+            hudEntries.forEach(entry => {
+                drawHudBox(hudX, entry.nick, entry.pl, entry.color);
+                hudX += boxW + gap;
+            });
 
             ctx.textAlign = "center";
             ctx.fillStyle = "#aaa";
@@ -4673,10 +4802,12 @@
             const joinBtn = document.getElementById('online-join-btn');
             const backBtn = document.getElementById('online-back-btn');
             const cancelBtn = document.getElementById('online-cancel-btn');
+            const startBtn = document.getElementById('online-start-btn');
             if (createBtn) createBtn.addEventListener('click', on_createRoom);
             if (joinBtn) joinBtn.addEventListener('click', on_joinRoom);
             if (backBtn) backBtn.addEventListener('click', closeOnlineOverlay);
             if (cancelBtn) cancelBtn.addEventListener('click', on_cancelRoom);
+            if (startBtn) startBtn.addEventListener('click', on_hostStartMatch);
             const codeInput = document.getElementById('online-code-input');
             if (codeInput) {
                 codeInput.addEventListener('input', () => {
