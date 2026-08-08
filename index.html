@@ -619,10 +619,10 @@
             <button id="chat-close-btn">FECHAR</button>
         </div>
 
-        <!-- Sala online — criar ou entrar em uma partida de até 3 jogadores pela internet -->
+        <!-- Sala online — criar ou entrar em uma partida de até 4 jogadores pela internet -->
         <div id="online-overlay">
             <h2>🌐 JOGAR ONLINE</h2>
-            <p class="online-subtitle">Até 3 jogadores, mesma fase, em tempo real</p>
+            <p class="online-subtitle">Até 4 jogadores, mesma fase, em tempo real</p>
 
             <div id="online-panel">
                 <input id="online-nick-input" type="text" placeholder="Seu apelido" maxlength="14">
@@ -1072,7 +1072,11 @@
             // Inimigos (enviados pelo usuário via Pixilart, já redimensionados e com fundo transparente)
             enemyShooter: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAAd0lEQVR42u3WvQmAMBAGUCNuYGnrLJk4VWaxtXQGbdVCQRH/3usCIdxHLuSKAoA/C0PTjk8usO67MF+nlBb1lm+/AQHuVr2t57WQAF//B9ZvQAsJ8PdZSAsJAABXzkJ7G2KMm7NSzjmcKeDs+UYJAQQQQAAAOGwCQSwaZa6AKVQAAAAASUVORK5CYII=", // vermelho: atira
             enemyMelee:   "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAAlUlEQVR42u2Zuw2AIBBAOeMaFhT0bmJh73D2VnZM4QKGwj3UVmJBwRnFvNcREsjL8bkDMcpUQ3Nc27Zvo/61m0V1PlM4CLyNPL0HUuzjJiwhBACg3HsglfukyM2NOEYRQAABBBBAAIEMau0Bw7QQAQQAAABKQf1/wDkXvxNZG/V77/kjQwABBBD4cU18q5FDIAIIfJkTyYwVQgcPox4AAAAASUVORK5CYII=", // verde: corpo a corpo
-            enemyFlyer:   "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAAjUlEQVR42u3XvQ2AIBCGYVA3sDFxCKNzMIeDMAZzMIcT2FpaWhIdAAsw/qHvUxIS7gscyQkBIGnSWruGblZKyTuKiqkpS/0GCEAAAAAAADg61MdsHvrcG7bbyp1flA6vi5GSAH8PUIQ261UNa3Tjrc31snt+OY2SJ0QAAnwsgIz5hZ7WGccvRAACAMCrbPSeGN3XGOo2AAAAAElFTkSuQmCC"  // laranja: voa e atira
+            enemyFlyer:   "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAAjUlEQVR42u3XvQ2AIBCGYVA3sDFxCKNzMIeDMAZzMIcT2FpaWhIdAAsw/qHvUxIS7gscyQkBIGnSWruGblZKyTuKiqkpS/0GCEAAAAAAADg61MdsHvrcG7bbyp1flA6vi5GSAH8PUIQ261UNa3Tjrc31snt+OY2SJ0QAAnwsgIz5hZ7WGccvRAACAMCrbPSeGN3XGOo2AAAAAElFTkSuQmCC",  // laranja: voa e atira
+
+            // Shadow — enviado pelo usuário via Pixilart (idle e rolando/bola)
+            shadowIdle:   "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAABuElEQVR4nO1ZQU7DMBBc07wAxK1cULnwBo4ofkNPPIBXgYR4Q3znC1xacaFH+gXcA7jZ2HFi79aJnGakSlWTdXY9M+vYFUCHZsSGQvTdcDFAEknRW6GF46zvl6vGhfX9LSmB988v77Wr3dZ89eZ5dgxgNDxQlmVUsFIq5nZvnkXUU9sHZZlZazf84/oGAAAefna98dlLKLYAbX/2y5Vj6CGRPQNkDxjTrpkJCMHpIxNgYLQ2GgLUapO0UQCoV+QQKUX2/iBkL6FYBo6y4Zq4bQGzEWLwyTPgnSZbz1wTSylJcdkz4BOZBqh1un1dAADA89ujc2OKzoJwXjuyk+1xfX6oqsqfSLPjBC+wBVhyweiSjo0QKWGjdhUTg+wlNFoBUkpy68TInoEC/g0jhOgwcbpWyWVhEgwY8LZGwxw1OsiegbmAsZF9AVzjYpzSxMF5Zc8A+1SiDZTdGXVfMTPQhZBZ5e6lkxaA4DWlUkoDNAsxv3XFGWQvobmAsZFkIdu8/M3L3dNvzHNI8TMDCNRXibYcQsYSvmAqvP/iG1x+b9ws6vMg54zKHgfHm7hZQgjct1HSKWH2DBwAhSluCG4zmAEAAAAASUVORK5CYII=", // Shadow parado
+            shadowRoll:   "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAB/0lEQVR4nN2awUrDQBCGv4gXUeihUhC8VDx56jsIBR9B8DF8JMFHEPIUPXkSe6ggLfSwh+IxHpLUzSbZ3aRrMul/DLvtP/PPTLIzGxEOScP1UYg/PeRHCoSn0ykAo9GIyWTi3BzHcRAuJ202SUJTq/den81mtYt8FDBhKOLNK7gCbcgfgiYKJDavQzjymRpe3HwWJRA+ZFzQQsrK8eAQ6jpkTNisq/V8l6RdSjRWoG+Pm6hToDJh+yRfl9imAgke1aYPzOdzyPjpzwf/Jj51LZAW8yasCkgnD39JUSqZksnrpXXwORBRUXWqvP/6/gnA491NB7T8EMfx8KtQyQBX7OdKSEHBAMmJW4fjCyEfSAojLwMkETbhNEAyeTj2HJDufbAYMATyYBiw2WyA4ZCH7DzwvFr/PVmt4ezcuknS91DjJJZEHlIFoqftdwLwMr7qmY4fnOeBt59d5UZp3odym6KgxIOWCxLIVzW5rDmQKyGBfB2cSXx/ebEvrxJxdJ8SEWlVKi3sWwWttVjI28re6Pb6Nhl/fQDl7nTXp7bg3WlpaD2h+W8lfCc0zt5oHfSc6LMZEHTIB82MqXNC6CGfDq85sUkoh05YKQWkk32AxWLRilfrEHLBVnaVUux26Vs+N6Atgt2VaDLVUUqxXC6DcOmljB7qdR1Brrxk6OW6zS9xdo/10HAW+AAAAABJRU5ErkJggg=="  // Shadow girando (spin dash/pulo)
         };
 
         // Carrega as imagens (só cria o Image se houver base64 preenchido)
@@ -1601,6 +1605,16 @@
                 description: "Costas com espinhos: imune a\nataque físico vindo por trás.",
                 canFly: false,
                 spikesBack: true
+            },
+            shadow: {
+                name: "SHADOW",
+                spriteKey: "shadowIdle",
+                rollSpriteKey: "shadowRoll",
+                color: "#7c1f1f",
+                description: "2x [PULAR] no ar: teleporta\num pouco na direção virada.",
+                canFly: false,
+                spikesBack: false,
+                canTeleport: true
             }
         };
         let selectedCharacter = "sonic";
@@ -1648,7 +1662,7 @@
 
         // --- TECLAS ---
         const keys = {};
-        const characterOrder = ["sonic", "tails", "knuckles"];
+        const characterOrder = ["sonic", "tails", "knuckles", "shadow"];
 
         window.addEventListener('keydown', (e) => {
             if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", " "].includes(e.key)) {
@@ -1759,10 +1773,12 @@
             const scaleX = canvas.width / rect.width;
             const clickX = (e.clientX - rect.left) * scaleX;
 
-            // Três cartões de personagem lado a lado — checa em qual o clique caiu
-            const cardWidth = 200;
-            const spacing = 40;
-            const totalWidth = cardWidth * 3 + spacing * 2;
+            // Cartões de personagem lado a lado — checa em qual o clique caiu.
+            // Mesmo cálculo de largura/espaçamento usado em renderCharacterSelect.
+            const numChars = characterOrder.length;
+            const cardWidth = numChars > 3 ? 170 : 200;
+            const spacing = numChars > 3 ? 20 : 40;
+            const totalWidth = cardWidth * numChars + spacing * (numChars - 1);
             const startX = (canvas.width - totalWidth) / 2;
 
             characterOrder.forEach((charKey, i) => {
@@ -1837,25 +1853,79 @@
             }
         }
 
+        // Distância do teleporte do Shadow (curta, na direção que ele está virado)
+        const SHADOW_TELEPORT_DISTANCE = 130;
+
+        // Efeitos visuais temporários de teleporte (rastro), consumidos pela renderização
+        let teleportEffects = [];
+        function spawnTeleportEffect(fromX, fromY, toX, toY) {
+            teleportEffects.push({ fromX, fromY, toX, toY, timer: 14 });
+        }
+
+        // Desenha o rastro de um teleporte: uma linha tracejada vermelha entre
+        // origem e destino, que desvanece nos últimos frames. Assume que o
+        // contexto já está no espaço de coordenadas do mundo (após ctx.translate
+        // da câmera), então recebe as coordenadas já no mesmo espaço.
+        function drawTeleportEffects(effects) {
+            if (!effects.length) return;
+            effects.forEach(fx => {
+                const alpha = Math.max(0, fx.timer / 14);
+                ctx.save();
+                ctx.globalAlpha = alpha * 0.8;
+                ctx.strokeStyle = "#ff1744";
+                ctx.lineWidth = 3;
+                ctx.setLineDash([6, 5]);
+                ctx.beginPath();
+                ctx.moveTo(fx.fromX, fx.fromY);
+                ctx.lineTo(fx.toX, fx.toY);
+                ctx.stroke();
+                ctx.setLineDash([]);
+                // Pequeno brilho nos dois pontos
+                [[fx.fromX, fx.fromY], [fx.toX, fx.toY]].forEach(([px, py]) => {
+                    ctx.fillStyle = "#ff5252";
+                    ctx.beginPath();
+                    ctx.arc(px, py, 6 * alpha, 0, Math.PI * 2);
+                    ctx.fill();
+                });
+                ctx.restore();
+            });
+        }
+
+        // Teleporta a entidade (objeto com x/y/facing) uma curta distância na
+        // direção em que está virada. Sem limite de uso, sem dano a inimigos —
+        // é puro movimento, igual em qualquer modo de jogo (solo/2P/online).
+        function performTeleport(entity, levelMinX, levelMaxX) {
+            const fromX = entity.x, fromY = entity.y;
+            let newX = entity.x + entity.facing * SHADOW_TELEPORT_DISTANCE;
+            if (typeof levelMinX === "number") newX = Math.max(levelMinX, newX);
+            if (typeof levelMaxX === "number") newX = Math.min(levelMaxX, newX);
+            entity.x = newX;
+            spawnTeleportEffect(fromX, fromY, entity.x, entity.y);
+            sfx.jump();
+        }
+
         // Conta os cliques da tecla de pulo: 1 clique no ar = pulo normal,
-        // 2 cliques dentro da janela de tempo = ativa o modo voo do Tails.
+        // 2 cliques dentro da janela de tempo = ativa o modo voo do Tails, ou
+        // dispara um teleporte instantâneo (sem limite de usos) para o Shadow.
         function handleJumpTap() {
             if (gameState !== "playing") return;
             const character = CHARACTERS[selectedCharacter];
-            if (!character.canFly) return; // só o Tails usa esse sistema
+            if (!character.canFly && !character.canTeleport) return; // só Tails/Shadow usam esse sistema
 
             if (sonic.isGrounded) {
-                // No chão, toques não contam para o combo de voo (evita ativar voo sem pular antes)
+                // No chão, toques não contam para o combo (evita ativar voo/teleporte sem pular antes)
                 jumpTapCount = 0;
                 flightModeActive = false;
                 return;
             }
 
             if (jumpTapTimer > 0 && jumpTapCount === 1) {
-                // Segundo clique dentro da janela: ativa o modo voo
+                // Segundo clique dentro da janela
                 jumpTapCount = 0;
                 jumpTapTimer = 0;
-                if (sonic.flyFuel > 0) {
+                if (character.canTeleport) {
+                    performTeleport(sonic, sonic.radius, levelWidth - sonic.radius);
+                } else if (sonic.flyFuel > 0) {
                     flightModeActive = true;
                     sfx.jump();
                 }
@@ -2195,6 +2265,13 @@
         // --- LÓGICA DE ATUALIZAÇÃO ---
         function update() {
             if (shopMessageTimer > 0) shopMessageTimer--;
+
+            // Efeitos de rastro do teleporte do Shadow envelhecem mesmo fora do
+            // estado "playing" (evita ficar um frame "preso" ao pausar, por exemplo)
+            if (teleportEffects.length) {
+                teleportEffects.forEach(fx => fx.timer--);
+                teleportEffects = teleportEffects.filter(fx => fx.timer > 0);
+            }
 
             if (gameState !== "playing") return;
 
@@ -2858,6 +2935,10 @@
                 });
             }
 
+            // Rastro visual do teleporte do Shadow (linha tracejada vermelha que
+            // desaparece rapidamente entre o ponto de origem e o de chegada)
+            drawTeleportEffects(teleportEffects);
+
             // Personagem jogável (pisca durante invencibilidade)
             const blinking = invulnerableTimer > 0 && Math.floor(invulnerableTimer / 5) % 2 === 0;
             const playerChar = CHARACTERS[selectedCharacter];
@@ -3089,10 +3170,13 @@
             ctx.font = 'bold 28px "Courier New"';
             ctx.fillText("ESCOLHA SEU PERSONAGEM", canvas.width / 2, 70);
 
-            const cardWidth = 200;
+            // Layout dinâmico: cartões encolhem um pouco quando há mais de 3
+            // personagens, para caber todos lado a lado sem sair da tela.
+            const numChars = characterOrder.length;
+            const cardWidth = numChars > 3 ? 170 : 200;
             const cardHeight = 260;
-            const spacing = 40;
-            const totalWidth = cardWidth * 3 + spacing * 2;
+            const spacing = numChars > 3 ? 20 : 40;
+            const totalWidth = cardWidth * numChars + spacing * (numChars - 1);
             const startX = (canvas.width - totalWidth) / 2;
             const cardY = 110;
 
@@ -3781,6 +3865,9 @@
                 }
             });
 
+            // Rastro visual do teleporte do Shadow, se algum dos 2 jogadores usar
+            drawTeleportEffects(teleportEffects);
+
             // Os dois jogadores (cada viewport mostra ambos, já que a fase é compartilhada)
             [mp_player1, mp_player2].forEach(pl => {
                 const pc = CHARACTERS[pl.charKey];
@@ -3885,10 +3972,11 @@
         });
 
         // Conta os cliques da tecla de pulo de cada jogador no modo 2P:
-        // 1 clique no ar = pulo normal, 2 cliques = ativa o modo voo (só canFly, ex.: Tails/P2)
+        // 1 clique no ar = pulo normal, 2 cliques = ativa o modo voo (canFly, ex.: Tails)
+        // ou dispara o teleporte (canTeleport, ex.: Shadow).
         function mp_handleJumpTap(p) {
             const character = CHARACTERS[p.charKey];
-            if (!character.canFly) return;
+            if (!character.canFly && !character.canTeleport) return;
             if (p.isGrounded) {
                 p.jumpTapCount = 0;
                 p.flightModeActive = false;
@@ -3897,7 +3985,9 @@
             if (p.jumpTapTimer > 0 && p.jumpTapCount === 1) {
                 p.jumpTapCount = 0;
                 p.jumpTapTimer = 0;
-                if (p.flyFuel > 0) {
+                if (character.canTeleport) {
+                    performTeleport(p, p.radius, mp_levelWidth - p.radius);
+                } else if (p.flyFuel > 0) {
                     p.flightModeActive = true;
                     sfx.jump();
                 }
@@ -3924,7 +4014,7 @@
         /* ================== FIM DO MÓDULO DE 2 JOGADORES ================== */
 
         /* =====================================================================
-           MODO ONLINE — até 3 jogadores pela internet, na mesma fase, em tempo real.
+           MODO ONLINE — até 4 jogadores pela internet, na mesma fase, em tempo real.
            =====================================================================
            Como funciona:
            - Usa o Supabase Realtime (recurso "Broadcast" de canais) — não precisa
@@ -3939,9 +4029,9 @@
              (sem lag nenhum no seu personagem) e transmite sua posição ~15x
              por segundo. A posição dos parceiros chega por rede e é suavizada
              (interpolada) até o valor mais recente, pra não parecer "teleporte".
-           - Até 3 jogadores por sala (1, 2 ou 3 — o host decide quando começar).
+           - Até 4 jogadores por sala (1, 2, 3 ou 4 — o host decide quando começar).
              Personagens são atribuídos automaticamente na ordem de entrada:
-             Sonic → Tails → Knuckles (o próximo disponível).
+             Sonic → Tails → Knuckles → Shadow (o próximo disponível).
            - Sem colisão entre os jogadores (é cooperativo, não é PvP): cada um
              vê os outros correndo/pulando/coletando anéis, mas não pode acertar
              nem ser acertado pelos parceiros.
@@ -3949,8 +4039,8 @@
 
         const ON_STAGE_COUNT = 4;
         const ON_GROUND_Y = 380;
-        const ON_MAX_PLAYERS = 3;
-        const ON_CHAR_ORDER = ["sonic", "tails", "knuckles"]; // ordem de atribuição automática
+        const ON_MAX_PLAYERS = 4;
+        const ON_CHAR_ORDER = ["sonic", "tails", "knuckles", "shadow"]; // ordem de atribuição automática
 
         let on_channel = null;          // canal Realtime da sala (Broadcast)
         let on_roomCode = null;         // código de 4 letras da sala atual
@@ -4031,7 +4121,7 @@
         }
 
         let on_localPlayer = on_makeLocalPlayer("sonic");
-        // Mapa de jogadores remotos por id (0, 1 ou 2 entradas — até 2 parceiros)
+        // Mapa de jogadores remotos por id (0 a 3 entradas — até 3 parceiros)
         let on_remotePlayers = {};
 
         function on_remotePlayersList() {
@@ -4190,7 +4280,7 @@
                     })
                     .on('broadcast', { event: 'room_full' }, ({ payload }) => {
                         if (payload.id !== on_myId) return;
-                        on_setStatus("Essa sala já está cheia (máximo 3 jogadores).", false);
+                        on_setStatus("Essa sala já está cheia (máximo 4 jogadores).", false);
                         on_teardownChannel();
                         document.getElementById('online-panel').style.display = "flex";
                         document.getElementById('online-waiting-panel').classList.remove('visible');
@@ -4656,7 +4746,7 @@
             });
 
             // Desenha um jogador (local ou remoto) reaproveitando os sprites do personagem
-            function drawOnlinePlayer(pl, isLocal, label, invulnerable) {
+            function drawOnlinePlayer(pl, isLocal, label, labelColor) {
                 const pc = CHARACTERS[pl.charKey];
                 if (!pc) return;
                 ctx.save();
@@ -4695,15 +4785,20 @@
                 ctx.restore();
 
                 // Etiqueta com o apelido, para diferenciar quem é quem
-                ctx.fillStyle = isLocal ? "#ffeb3b" : "#00e5ff";
+                ctx.fillStyle = labelColor || (isLocal ? "#ffeb3b" : "#00e5ff");
                 ctx.font = 'bold 10px "Courier New"';
                 ctx.textAlign = "center";
                 ctx.fillText(label, pl.x, pl.y - 28);
             }
 
-            // Parceiros remotos primeiro (ficam atrás visualmente se sobrepor)
-            on_remotePlayersList().forEach(rp => {
-                if (rp.connected) drawOnlinePlayer(rp, false, rp.nick);
+            // Rastro visual do teleporte do Shadow, se algum jogador da sala usar
+            drawTeleportEffects(teleportEffects);
+
+            // Parceiros remotos primeiro (ficam atrás visualmente se sobrepor).
+            // Cada um usa a mesma cor que sua caixa de HUD (veja partnerColors abaixo).
+            const onlinePartnerColors = ["#00e5ff", "#ff9e80", "#b388ff"];
+            on_remotePlayersList().forEach((rp, i) => {
+                if (rp.connected) drawOnlinePlayer(rp, false, rp.nick, onlinePartnerColors[i] || "#ffffff");
             });
 
             const blinking = p.invulnerableTimer > 0 && Math.floor(p.invulnerableTimer / 5) % 2 === 0;
@@ -4712,12 +4807,12 @@
             ctx.restore();
 
             // HUD: dados de todos os jogadores da sala, distribuídos no topo
-            function drawHudBox(x, nick, pl, color) {
+            function drawHudBox(x, w, nick, pl, color) {
                 ctx.fillStyle = "rgba(0,0,0,0.55)";
-                ctx.fillRect(x, 8, 188, 44);
+                ctx.fillRect(x, 8, w, 44);
                 ctx.strokeStyle = color;
                 ctx.lineWidth = 2;
-                ctx.strokeRect(x, 8, 188, 44);
+                ctx.strokeRect(x, 8, w, 44);
                 ctx.textAlign = "left";
                 ctx.fillStyle = color;
                 ctx.font = 'bold 12px "Courier New"';
@@ -4727,16 +4822,21 @@
                 ctx.fillText(`Anéis: ${pl.rings}   Vidas: ${pl.lives}   Pontos: ${pl.score}`, x + 8, 42);
             }
 
-            // Monta a lista de caixas de HUD: eu + parceiros conectados (até 3 no total),
-            // distribuídas de forma equilibrada ao longo do topo da tela.
+            // Monta a lista de caixas de HUD: eu + parceiros conectados (até 4 no total),
+            // distribuídas de forma equilibrada ao longo do topo da tela. Cada parceiro
+            // tem sua própria cor, pra ficar fácil diferenciar quem é quem.
+            const partnerColors = ["#00e5ff", "#ff9e80", "#b388ff"];
             const hudEntries = [{ nick: on_myNick + " (você)", pl: p, color: "#ffeb3b" }];
             on_remotePlayersList().forEach((rp, i) => {
-                if (rp.connected) hudEntries.push({ nick: rp.nick, pl: rp, color: i === 0 ? "#00e5ff" : "#ff9e80" });
+                if (rp.connected) hudEntries.push({ nick: rp.nick, pl: rp, color: partnerColors[i] || "#ffffff" });
             });
-            const boxW = 188, gap = 8, totalW = hudEntries.length * boxW + (hudEntries.length - 1) * gap;
+            // Caixas encolhem um pouco quando há mais de 3 jogadores no total, pra caber
+            const boxW = hudEntries.length > 3 ? 172 : 188;
+            const gap = 8;
+            const totalW = hudEntries.length * boxW + (hudEntries.length - 1) * gap;
             let hudX = (canvas.width - totalW) / 2;
             hudEntries.forEach(entry => {
-                drawHudBox(hudX, entry.nick, entry.pl, entry.color);
+                drawHudBox(hudX, boxW, entry.nick, entry.pl, entry.color);
                 hudX += boxW + gap;
             });
 
@@ -4770,12 +4870,12 @@
             }
         });
 
-        // Double-tap de pulo no modo online (voo do Tails)
+        // Double-tap de pulo no modo online (voo do Tails, ou teleporte do Shadow)
         window.addEventListener('keydown', (e) => {
             if (gameState !== "online" || e.repeat) return;
             if (e.key === " " || e.key === "w" || e.key === "W" || e.key === "ArrowUp") {
                 const character = CHARACTERS[on_localPlayer.charKey];
-                if (!character.canFly) return;
+                if (!character.canFly && !character.canTeleport) return;
                 const p = on_localPlayer;
                 if (p.isGrounded) {
                     p.jumpTapCount = 0;
@@ -4785,7 +4885,9 @@
                 if (p.jumpTapTimer > 0 && p.jumpTapCount === 1) {
                     p.jumpTapCount = 0;
                     p.jumpTapTimer = 0;
-                    if (p.flyFuel > 0) {
+                    if (character.canTeleport) {
+                        performTeleport(p, p.radius, on_levelWidth - p.radius);
+                    } else if (p.flyFuel > 0) {
                         p.flightModeActive = true;
                         sfx.jump();
                     }
