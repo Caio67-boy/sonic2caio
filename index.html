@@ -1,7 +1,7 @@
 <!DOCTYPE html><html lang="pt-BR"><head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sonic 2 - 13 Fases & 3 Chefes</title>
+    <title>Sonic 2 - 13 Fases &amp; 3 Chefes</title>
     <style>
         * {
             box-sizing: border-box;
@@ -1071,12 +1071,19 @@
 
             // Inimigos (enviados pelo usuário via Pixilart, já redimensionados e com fundo transparente)
             enemyShooter: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAAd0lEQVR42u3WvQmAMBAGUCNuYGnrLJk4VWaxtXQGbdVCQRH/3usCIdxHLuSKAoA/C0PTjk8usO67MF+nlBb1lm+/AQHuVr2t57WQAF//B9ZvQAsJ8PdZSAsJAABXzkJ7G2KMm7NSzjmcKeDs+UYJAQQQQAAAOGwCQSwaZa6AKVQAAAAASUVORK5CYII=", // vermelho: atira
-            enemyMelee:   "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAAlUlEQVR42u2Zuw2AIBBAOeMaFhT0bmJh73D2VnZM4QKGwj3UVmJBwRnFvNcREsjL8bkDMcpUQ3Nc27Zvo/61m0V1PlM4CLyNPL0HUuzjJiwhBACg3HsglfukyM2NOEYRQAABBBBAAIEMau0Bw7QQAQQAAABKQf1/wDkXvxNZG/V77/kjQwABBBD4cU18q5FDIAIIfJkTyYwVQgcPox4AAAAASUVORK5CYII=", // verde: corpo a corpo
+            enemyMelee:   "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAf0lEQVR4nGNkIAVwMfxnCpFFEVIMNkDh3/XfzEiKkUwkOYAGYNQBA+4AkhIMtkRIDPi36DFOewY8BEYdMApGwYADvAURU5zsf2T+P9ZfDMp+ZiRbgq+GHPBsOOqAUQeMOmDUAaMOGHAHsJCimOk3G8P9tReo6oABD4FRBwy4AwAWaBGVUTRl1QAAAABJRU5ErkJggg==", // verde: corpo a corpo (sprite enviado pelo usuário, recortado e corrigido — o anterior estava corrompido)
             enemyFlyer:   "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAAjUlEQVR42u3XvQ2AIBCGYVA3sDFxCKNzMIeDMAZzMIcT2FpaWhIdAAsw/qHvUxIS7gscyQkBIGnSWruGblZKyTuKiqkpS/0GCEAAAAAAADg61MdsHvrcG7bbyp1flA6vi5GSAH8PUIQ261UNa3Tjrc31snt+OY2SJ0QAAnwsgIz5hZ7WGccvRAACAMCrbPSeGN3XGOo2AAAAAElFTkSuQmCC",  // laranja: voa e atira
 
             // Shadow — enviado pelo usuário via Pixilart (idle e rolando/bola)
             shadowIdle:   "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAABuElEQVR4nO1ZQU7DMBBc07wAxK1cULnwBo4ofkNPPIBXgYR4Q3znC1xacaFH+gXcA7jZ2HFi79aJnGakSlWTdXY9M+vYFUCHZsSGQvTdcDFAEknRW6GF46zvl6vGhfX9LSmB988v77Wr3dZ89eZ5dgxgNDxQlmVUsFIq5nZvnkXUU9sHZZlZazf84/oGAAAefna98dlLKLYAbX/2y5Vj6CGRPQNkDxjTrpkJCMHpIxNgYLQ2GgLUapO0UQCoV+QQKUX2/iBkL6FYBo6y4Zq4bQGzEWLwyTPgnSZbz1wTSylJcdkz4BOZBqh1un1dAADA89ujc2OKzoJwXjuyk+1xfX6oqsqfSLPjBC+wBVhyweiSjo0QKWGjdhUTg+wlNFoBUkpy68TInoEC/g0jhOgwcbpWyWVhEgwY8LZGwxw1OsiegbmAsZF9AVzjYpzSxMF5Zc8A+1SiDZTdGXVfMTPQhZBZ5e6lkxaA4DWlUkoDNAsxv3XFGWQvobmAsZFkIdu8/M3L3dNvzHNI8TMDCNRXibYcQsYSvmAqvP/iG1x+b9ws6vMg54zKHgfHm7hZQgjct1HSKWH2DBwAhSluCG4zmAEAAAAASUVORK5CYII=", // Shadow parado
             shadowRoll:   "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAB/0lEQVR4nN2awUrDQBCGv4gXUeihUhC8VDx56jsIBR9B8DF8JMFHEPIUPXkSe6ggLfSwh+IxHpLUzSbZ3aRrMul/DLvtP/PPTLIzGxEOScP1UYg/PeRHCoSn0ykAo9GIyWTi3BzHcRAuJ202SUJTq/den81mtYt8FDBhKOLNK7gCbcgfgiYKJDavQzjymRpe3HwWJRA+ZFzQQsrK8eAQ6jpkTNisq/V8l6RdSjRWoG+Pm6hToDJh+yRfl9imAgke1aYPzOdzyPjpzwf/Jj51LZAW8yasCkgnD39JUSqZksnrpXXwORBRUXWqvP/6/gnA491NB7T8EMfx8KtQyQBX7OdKSEHBAMmJW4fjCyEfSAojLwMkETbhNEAyeTj2HJDufbAYMATyYBiw2WyA4ZCH7DzwvFr/PVmt4ezcuknS91DjJJZEHlIFoqftdwLwMr7qmY4fnOeBt59d5UZp3odym6KgxIOWCxLIVzW5rDmQKyGBfB2cSXx/ebEvrxJxdJ8SEWlVKi3sWwWttVjI28re6Pb6Nhl/fQDl7nTXp7bg3WlpaD2h+W8lfCc0zt5oHfSc6LMZEHTIB82MqXNC6CGfDq85sUkoh05YKQWkk32AxWLRilfrEHLBVnaVUux26Vs+N6Atgt2VaDLVUUqxXC6DcOmljB7qdR1Brrxk6OW6zS9xdo/10HAW+AAAAABJRU5ErkJggg=="  // Shadow girando (spin dash/pulo)
+            ,
+            // Super Sonic — dourado, gerado a partir do sprite enviado pelo usuário
+            // (pixel art amarela com contorno preto, redimensionada para 32x32 e
+            // com fundo transparente). Usado no lugar do sonicIdle/sonicRoll
+            // enquanto a transformação estiver ativa.
+            superSonicIdle: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAABI0lEQVR4nO1W0Q6DIAxsl32j+xf3PP9Ff/L2gChg0QM2k2VeQjIM3F1LCxO5cOHfocQaFHIhmTcZAEh5Vb9h+U0ZuB3yavpBRKZ+sxBwoxRHBkwTIraJGjAGbBPdkF08Z4LKB3VOEbdJi5lHEX6zUxeDzQCAI/G1EGdxKgOMAXhyIqBiUEW4ODFjSiONoj/MAhuTnX7fCd1r5ZmeLmOPgeKnbsJsf2dakRWnF8lOKjHGJkrEWwGMPcSZC8cpiMQBN08MfU/ciULCEZryc4as9qwAINrrWw9Y2vCjRbhrwrj1aN7Waq0W9mDfgryDxnJrMWBJF9u514rHRahpPdBHUWPAfpJU4S8ALfhjWlOE8bEDKkkXqGwcZHWqDFTsOeVt+E28Ac2YkMtM+6t0AAAAAElFTkSuQmCC", // Super Sonic parado/correndo (derivado do sprite amarelo enviado)
+            superSonicRoll: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAACe0lEQVR4nO2WS2sUQRDHf9XTmzVrMGo8KBgExQd4UlGQZJOI4gNDFE8Bv4FfQBCM4CP7HQT1oCLe8gCvatBgbt4k4DEeolkxiSbsZrrLwwZNMrOb3c2E9WBdZuie6f+vq6urSlSVRpppqPq/AGBr/WGbFfWu9C5SeqYAVQiaYKagUst6Uk0MWGsV4PGdY2w3eTDTf+bOnm5jazC3/OEupheOsvvcCACq68OsCyAiOvogg1+x1OVsgIgBH2IqOFG6ZteFqAggIjqU24Kooa8zRSlkfEXgtWa65/Del4UoG4QiokODLQTe0NcZLI/WJg7gxloQkbK7jAUQER3NNSP4kuu1/ssiavBjOzDGxEJEjsBaqzf7PRjLiYNLXOtprVt8lQWGIDuLc27VcUQjyDk8QseRNL3ZTDLiAOIRicpFfHvj+j6MsfR2JZyjQvjy9nxlAGutznz9xvHDDmrLJ1XZTvcxEgurAJxz6FKRqz2pxMUBUjLP2piL+Hl/uxCELZsCEGcNL0b/AeIBjGssgPpiYwBUVeZkD/cfLWyKWF7PRMpzxAMPX04R+jSv3s0nKl5oCth7aSgyHgEoFjwaKOOTloEns4kBWAeFxWh2jQCoquSehag6XJhi5P3ixtXVYzu/xzYmsUG45JzknnqswodPCmYDdUEE6f6F+vjiUjYPeO/l3vOQQGFkrP5bEWR/oOrK7qCqpnR4MANqaDI/udhRfYOy4aZ0JQTA8GCpQenpaOP1eJ5QWrlwqlQ530zkmfi8wMkDzVy5VbrGibTla0Fe3D1Exk4B4KUZo3+DdNG10397sirhugAA0umUFoth7JwxJtLzJQ6QtDW8Gv4GAl/64CUf5+0AAAAASUVORK5CYII=" // Super Sonic girando (spin dash/pulo) — bolinha dourada enviada pelo usuário
         };
 
         // Carrega as imagens (só cria o Image se houver base64 preenchido)
@@ -1127,7 +1134,9 @@
             enemyShoot: () => beep(500, 0.08, "sawtooth", 0.08),
             enemyMeleeCharge: () => beep(200, 0.15, "square", 0.1),
             buy: () => { beep(880, 0.08, "sine", 0.12, 0); beep(1180, 0.12, "sine", 0.12, 0.08); },
-            denied: () => beep(140, 0.15, "sawtooth", 0.12)
+            denied: () => beep(140, 0.15, "sawtooth", 0.12),
+            emerald: () => { beep(784, 0.1, "sine", 0.15, 0); beep(988, 0.1, "sine", 0.15, 0.1); beep(1175, 0.1, "sine", 0.15, 0.2); beep(1568, 0.25, "sine", 0.18, 0.3); },
+            transform: () => { beep(300, 0.1, "sawtooth", 0.1, 0); beep(500, 0.1, "sawtooth", 0.12, 0.08); beep(800, 0.1, "sawtooth", 0.14, 0.16); beep(1200, 0.1, "sine", 0.16, 0.24); beep(1600, 0.3, "sine", 0.2, 0.32); }
         };
 
         /* =====================================================================
@@ -1168,6 +1177,13 @@
                          "F4","A4","C5","-","F4","A4","C5","-","E4","G4","B4","-","E4","G4","C5","-"],
                 bass:   ["A3","-","A3","-","A3","-","A3","-","G3","-","G3","-","G3","-","G3","-",
                          "F3","-","F3","-","F3","-","F3","-","E3","-","E3","-","E3","-","E3","-"]
+            },
+            super: {
+                bpm: 190,
+                melody: ["C5","E5","G5","C6","G5","E5","C5","G5","D5","F5","A5","D5","A5","F5","D5","A5",
+                         "E5","G5","B5","E5","B5","G5","E5","B5","C5","E5","G5","C6","G5","E5","C5","G5"],
+                bass:   ["C3","-","G3","-","C3","-","G3","-","D3","-","A3","-","D3","-","A3","-",
+                         "E3","-","B3","-","E3","-","B3","-","C3","-","G3","-","C3","-","G3","-"]
             }
         };
 
@@ -1256,7 +1272,7 @@
             if (!musicEnabled) {
                 stopMusic();
             } else if (gameState === "playing") {
-                startMusic(isBossZone(currentLevelIndex) ? "boss" : "normal");
+                startMusic(isSuperSonicActive() ? "super" : (isBossZone(currentLevelIndex) ? "boss" : "normal"));
             }
         }
 
@@ -1849,7 +1865,7 @@
                 stopMusic();
             } else if (gameState === "paused") {
                 gameState = "playing";
-                startMusic(isBossZone(currentLevelIndex) ? "boss" : "normal");
+                startMusic(isSuperSonicActive() ? "super" : (isBossZone(currentLevelIndex) ? "boss" : "normal"));
             }
         }
 
@@ -2005,6 +2021,13 @@
             sonic.jumpForce = highJumpOwned ? -11 * 1.2 : -11; // item "PULO REFORÇADO"
             sonic.vx = 0;
             sonic.vy = 0;
+
+            // Chaos Emeralds e Super Sonic: zeram a cada nova partida
+            chaosEmeraldsCollected = 0;
+            emeraldSpawnedInLevel = {};
+            superSonicActive = false;
+            superSonicTimer = 0;
+
             document.getElementById('hud-score').innerText = score;
             document.getElementById('hud-rings').innerText = rings;
             document.getElementById('hud-time').innerText = "0:00";
@@ -2031,6 +2054,245 @@
         let platforms = [];   // plataformas móveis (sobe/desce ou vai/volta)
         let springs = [];     // molas (impulsionam o Sonic para cima ou para o lado)
         let finishFlag = { x: 3000, y: groundY - 40 };
+
+        /* =====================================================================
+           CHAOS EMERALDS & SUPER SONIC
+           =====================================================================
+           - Existem 7 Chaos Emeralds no total, uma escondida em cada uma das 7
+             primeiras zonas NORMAIS do jogo (não aparecem em zonas de chefe).
+           - Ao tocar numa esmeralda, ela é adicionada à contagem do jogador
+             (persistente durante a partida inteira, entre fases).
+           - Quando as 7 são coletadas, o personagem pode se transformar em
+             SUPER SONIC pressionando [E]. Nessa forma:
+               • fica DOURADO (usa o sprite enviado pelo usuário)
+               • é TOTALMENTE IMUNE A DANO (picos, inimigos, projéteis, chefes,
+                 buracos/queda não tiram vida) enquanto durar a transformação
+               • consome 1 anel por segundo; acaba se os anéis chegarem a 0
+               • dá um pequeno bônus de velocidade/pulo
+           - Só o personagem "sonic" pode virar Super Sonic (é a transformação
+             clássica dele); os outros personagens continuam normais mesmo after
+             juntar as 7 esmeraldas (mas ainda contam para o contador do jogo).
+           ===================================================================== */
+        const TOTAL_CHAOS_EMERALDS = 7;
+        let chaosEmeraldsCollected = 0;   // quantas esmeraldas o jogador já pegou nesta partida
+        let emeraldObjects = [];          // esmeralda(s) presentes na fase atual (0 ou 1)
+        let emeraldSpawnedInLevel = {};   // controla em quais zonas já nasceu uma esmeralda, p/ não duplicar
+        let superSonicActive = false;     // true enquanto a transformação está ativa
+        let superSonicTimer = 0;          // frames restantes de anel "cobrado" (controle do consumo por segundo)
+        let superSonicSparkles = [];      // partículas douradas decorativas ao redor do Super Sonic
+
+        // Zonas normais (na ordem 1ª,2ª,3ª...) onde cada uma das 7 esmeraldas nasce.
+        // Usa o índice de dificuldade 0-6 (as 7 primeiras fases normais do jogo).
+        const EMERALD_DIFFICULTY_SLOTS = [0, 1, 2, 3, 4, 5, 6];
+
+        function isSuperSonicActive() {
+            return superSonicActive;
+        }
+
+        function canTransformToSuperSonic() {
+            return selectedCharacter === "sonic" &&
+                   chaosEmeraldsCollected >= TOTAL_CHAOS_EMERALDS &&
+                   rings > 0 &&
+                   !superSonicActive &&
+                   gameState === "playing";
+        }
+
+        function activateSuperSonic() {
+            if (!canTransformToSuperSonic()) return;
+            superSonicActive = true;
+            superSonicTimer = 60; // 60 frames = 1 segundo até consumir o próximo anel
+            sfx.transform();
+            startMusic("super");
+            spawnSuperSonicBurst();
+        }
+
+        function deactivateSuperSonic() {
+            if (!superSonicActive) return;
+            superSonicActive = false;
+            superSonicSparkles = [];
+            if (gameState === "playing") {
+                startMusic(isBossZone(currentLevelIndex) ? "boss" : "normal");
+            }
+        }
+
+        // Pequena explosão de partículas douradas no momento da transformação
+        function spawnSuperSonicBurst() {
+            for (let i = 0; i < 18; i++) {
+                const angle = (Math.PI * 2 * i) / 18;
+                superSonicSparkles.push({
+                    x: sonic.x, y: sonic.y,
+                    vx: Math.cos(angle) * (2 + Math.random() * 2),
+                    vy: Math.sin(angle) * (2 + Math.random() * 2),
+                    life: 30
+                });
+            }
+        }
+
+        // Atualiza o consumo de anéis (1 por segundo) e as partículas decorativas —
+        // chamado a cada frame do update() principal enquanto o jogo está rodando.
+        function updateSuperSonic() {
+            if (!superSonicActive) return;
+
+            superSonicTimer--;
+            if (superSonicTimer <= 0) {
+                superSonicTimer = 60;
+                rings = Math.max(0, rings - 1);
+                document.getElementById('hud-rings').innerText = rings;
+                if (rings <= 0) {
+                    deactivateSuperSonic();
+                }
+            }
+
+            // Partículas de rastro contínuas enquanto está transformado
+            if (Math.random() < 0.6) {
+                superSonicSparkles.push({
+                    x: sonic.x + (Math.random() - 0.5) * 20,
+                    y: sonic.y + (Math.random() - 0.5) * 20,
+                    vx: (Math.random() - 0.5) * 1.5,
+                    vy: -1 - Math.random(),
+                    life: 22
+                });
+            }
+
+            for (let i = superSonicSparkles.length - 1; i >= 0; i--) {
+                const p = superSonicSparkles[i];
+                p.x += p.vx;
+                p.y += p.vy;
+                p.life--;
+                if (p.life <= 0) superSonicSparkles.splice(i, 1);
+            }
+        }
+
+        function drawSuperSonicSparkles() {
+            superSonicSparkles.forEach(p => {
+                const alpha = Math.max(0, p.life / 30);
+                ctx.save();
+                ctx.globalAlpha = alpha;
+                ctx.fillStyle = "#fff176";
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, 2.5, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            });
+        }
+
+        // Calcula a altura do chão "real" num X qualquer da fase, levando em
+        // conta as rampas (mesma lógica usada na física do personagem em
+        // update()). Sem isso, uma esmeralda flutuando a uma altura fixa
+        // podia acabar posicionada DENTRO de um morro/rampa, inacessível.
+        function groundYAt(x) {
+            let gy = groundY;
+            for (const ramp of ramps) {
+                if (x >= ramp.startX && x <= ramp.endX) {
+                    const progress = (x - ramp.startX) / (ramp.endX - ramp.startX);
+                    gy = groundY - Math.sin(progress * Math.PI) * (groundY - ramp.peakY);
+                }
+            }
+            return gy;
+        }
+
+        // Verifica se um X (com alguma folga de largura) cai sobre um buraco
+        // (pit) — nesse caso não há chão ali embaixo para o jogador pisar.
+        function isOverPitAt(x, margin) {
+            return pits.some(p => x + margin > p.x && x - margin < p.x + p.width);
+        }
+
+        // Cria a esmeralda da fase atual, se essa zona for uma das 7 sorteadas
+        // para conter uma, e se o jogador ainda não tiver coletado todas.
+        function maybeSpawnEmerald(levelNum) {
+            emeraldObjects = [];
+            if (chaosEmeraldsCollected >= TOTAL_CHAOS_EMERALDS) return;
+            if (isBossZone(levelNum)) return;
+
+            const diffIdx = NORMAL_DIFFICULTY_INDEX[levelNum];
+            if (!EMERALD_DIFFICULTY_SLOTS.includes(diffIdx)) return;
+            if (emeraldSpawnedInLevel[levelNum]) return; // já foi coletada nesta zona antes (evita duplicar)
+
+            // Escolhe um X candidato (determinístico) dentro da fase, longe do
+            // início/fim, e desliza para a direita até achar um trecho que não
+            // esteja em cima de um buraco (a esmeralda nunca aparece sobre o vazio).
+            const safeStart = 500;
+            const safeEnd = Math.max(safeStart + 100, levelWidth - 400);
+            let ex = safeStart + (diffIdx * 137) % Math.max(1, (safeEnd - safeStart));
+
+            let attempts = 0;
+            while (isOverPitAt(ex, 40) && attempts < 30) {
+                ex += 60;
+                if (ex > safeEnd) ex = safeStart;
+                attempts++;
+            }
+
+            // Flutua um pouco ACIMA do chão real naquele ponto (incluindo o
+            // topo de rampas), então nunca fica presa dentro de um morro nem
+            // fora do alcance de pulo — a altura de bob (balanço) soma-se
+            // depois na renderização/colisão, então aqui basta uma folga fixa.
+            const ey = groundYAt(ex) - 60;
+
+            emeraldObjects.push({
+                x: ex, y: ey,
+                collected: false,
+                colorIndex: diffIdx % EMERALD_COLORS.length,
+                bobPhase: Math.random() * Math.PI * 2
+            });
+        }
+
+        const EMERALD_COLORS = ["#ff5252", "#42a5f5", "#ffeb3b", "#66bb6a", "#ba68c8", "#ff9800", "#f06292"];
+
+        function drawEmeralds() {
+            emeraldObjects.forEach(em => {
+                if (em.collected) return;
+                const bob = Math.sin(Date.now() / 250 + em.bobPhase) * 6;
+                const ey = em.y + bob;
+                ctx.save();
+                ctx.translate(em.x, ey);
+                ctx.rotate(Math.sin(Date.now() / 500 + em.bobPhase) * 0.15);
+
+                // Corpo em losango facetado (visual de gema)
+                ctx.fillStyle = EMERALD_COLORS[em.colorIndex];
+                ctx.beginPath();
+                ctx.moveTo(0, -16);
+                ctx.lineTo(11, -4);
+                ctx.lineTo(7, 14);
+                ctx.lineTo(-7, 14);
+                ctx.lineTo(-11, -4);
+                ctx.closePath();
+                ctx.fill();
+
+                ctx.strokeStyle = "rgba(255,255,255,0.8)";
+                ctx.lineWidth = 1.5;
+                ctx.beginPath();
+                ctx.moveTo(0, -16); ctx.lineTo(0, 14);
+                ctx.moveTo(-11, -4); ctx.lineTo(11, -4);
+                ctx.stroke();
+
+                // Brilho pulsante ao redor
+                const glowAlpha = 0.25 + Math.sin(Date.now() / 200) * 0.15;
+                ctx.globalAlpha = glowAlpha;
+                ctx.fillStyle = "#fff";
+                ctx.beginPath();
+                ctx.arc(0, 0, 20, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.restore();
+            });
+        }
+
+        // Checa se o personagem tocou a esmeralda da fase — chamada dentro do update() principal
+        function checkEmeraldCollision() {
+            emeraldObjects.forEach(em => {
+                if (em.collected) return;
+                const bob = Math.sin(Date.now() / 250 + em.bobPhase) * 6;
+                const dist = Math.hypot(sonic.x - em.x, sonic.y - (em.y + bob));
+                if (dist < sonic.radius + 16) {
+                    em.collected = true;
+                    emeraldSpawnedInLevel[currentLevelIndex] = true;
+                    chaosEmeraldsCollected++;
+                    score += 1000;
+                    document.getElementById('hud-score').innerText = score;
+                    sfx.emerald();
+                }
+            });
+        }
 
         // --- CONFIGURAÇÃO DE OBSTÁCULOS POR FASE (temas diferentes por zona) ---
         // Cada fase ativa um subconjunto de tipos de obstáculo, crescendo em dificuldade.
@@ -2253,10 +2515,11 @@
             }
 
             generateClouds();
+            maybeSpawnEmerald(levelNum);
 
             // Troca a trilha sonora ao entrar em zona de chefe (ou de volta ao normal, se reiniciar)
             if (gameState === "playing") {
-                startMusic(zoneType !== "normal" ? "boss" : "normal");
+                startMusic(isSuperSonicActive() ? "super" : (zoneType !== "normal" ? "boss" : "normal"));
             }
         }
 
@@ -2276,6 +2539,13 @@
             if (gameState !== "playing") return;
 
             if (invulnerableTimer > 0) invulnerableTimer--;
+
+            // Tecla [E]: ativa o Super Sonic quando as condições são atendidas
+            // (Sonic selecionado, 7 esmeraldas coletadas, ao menos 1 anel, ainda não transformado)
+            if (keys["e"] || keys["E"]) {
+                activateSuperSonic();
+            }
+            updateSuperSonic();
 
             // 1. Agachamento / Spin Dash
             if (sonic.isGrounded && (keys["ArrowDown"] || keys["s"] || keys["S"])) {
@@ -2299,12 +2569,14 @@
             }
 
             // 2. Movimento Lateral
+            const superSpeedMult = superSonicActive ? 1.3 : 1;
+            const effectiveMaxSpeed = sonic.maxSpeed * superSpeedMult;
             if (!sonic.isSpinDashing && !sonic.isCrouching) {
                 if (keys["ArrowRight"] || keys["d"] || keys["D"]) {
-                    if (sonic.vx < sonic.maxSpeed) sonic.vx += sonic.accel;
+                    if (sonic.vx < effectiveMaxSpeed) sonic.vx += sonic.accel * superSpeedMult;
                     sonic.facing = 1;
                 } else if (keys["ArrowLeft"] || keys["a"] || keys["A"]) {
-                    if (sonic.vx > -sonic.maxSpeed) sonic.vx -= sonic.accel;
+                    if (sonic.vx > -effectiveMaxSpeed) sonic.vx -= sonic.accel * superSpeedMult;
                     sonic.facing = -1;
                 } else {
                     sonic.vx *= sonic.friction;
@@ -2317,8 +2589,9 @@
             }
 
             // 3. Pulo
+            const effectiveJumpForce = superSonicActive ? sonic.jumpForce * 1.15 : sonic.jumpForce;
             if ((keys[" "] || keys["w"] || keys["ArrowUp"]) && sonic.isGrounded && !sonic.isCrouching) {
-                sonic.vy = sonic.jumpForce;
+                sonic.vy = effectiveJumpForce;
                 sonic.isGrounded = false;
                 sonic.isRolling = true;
                 sfx.jump();
@@ -2408,21 +2681,29 @@
                 }
             }
 
-            // Caiu num buraco / fora da tela por baixo -> perde vida
+            // Caiu num buraco / fora da tela por baixo -> perde vida (Super Sonic é imune)
             if (sonic.y - sonic.radius > canvas.height + 40) {
-                loseLife();
+                if (superSonicActive) {
+                    // Super Sonic não cai: reaparece no chão mais próximo em vez de perder vida
+                    sonic.y = groundY - sonic.radius;
+                    sonic.vy = 0;
+                } else {
+                    loseLife();
+                }
             }
 
             sonic.angle += sonic.vx * 0.15;
 
-            // 4c. Picos (spikes) — dano ao encostar
+            // 4c. Picos (spikes) — dano ao encostar (ignorado se Super Sonic)
             spikes.forEach(sp => {
                 const dx = Math.abs(sonic.x - (sp.x + sp.width / 2));
                 const spTop = sp.y - sp.height;
                 if (dx < sp.width / 2 + sonic.radius * 0.5 &&
                     sonic.y + sonic.radius > spTop + 4) {
-                    takeDamage();
-                    sonic.vy = -7; // sempre dá um empurrão para cima ao encostar num pico
+                    if (!superSonicActive) {
+                        takeDamage();
+                        sonic.vy = -7; // sempre dá um empurrão para cima ao encostar num pico
+                    }
                 }
             });
 
@@ -2476,6 +2757,9 @@
                     }
                 }
             });
+
+            // 5b. Coleta da Chaos Emerald da fase (se houver)
+            checkEmeraldCollision();
 
             // 6. Passar de Fase
             if (!isBossZone(currentLevelIndex) && sonic.x >= finishFlag.x) {
@@ -2549,7 +2833,7 @@
 
                         const bDist = Math.hypot(sonic.x - b.x, sonic.y - b.y);
                         if (bDist < sonic.radius + 6) {
-                            takeDamage();
+                            if (!superSonicActive) takeDamage();
                             enemy.bullets.splice(i, 1);
                         } else if (b.x < cameraX - 100 || b.x > cameraX + canvas.width + 100 || b.y > canvas.height + 50 || b.y < -50) {
                             enemy.bullets.splice(i, 1);
@@ -2566,7 +2850,13 @@
                     const enemyBonusOwned = SHOP_ITEMS.find(i => i.id === "enemyBonus" && i.owned);
                     const enemyKillScore = 200 + (enemyBonusOwned ? 100 : 0); // item "CAÇADOR DE PONTOS"
 
-                    if (sonic.vy > 0 || sonic.isRolling || sonic.isSpinDashing) {
+                    if (superSonicActive) {
+                        // Super Sonic destrói qualquer inimigo ao tocar, sem nunca tomar dano
+                        enemy.alive = false;
+                        score += enemyKillScore;
+                        sfx.stomp();
+                        document.getElementById('hud-score').innerText = score;
+                    } else if (sonic.vy > 0 || sonic.isRolling || sonic.isSpinDashing) {
                         enemy.alive = false;
                         sonic.vy = -7;
                         score += enemyKillScore;
@@ -2603,7 +2893,7 @@
 
                     let dist = Math.hypot(sonic.x - b.x, sonic.y - b.y);
                     if (dist < sonic.radius + 8) {
-                        takeDamage();
+                        if (!superSonicActive) takeDamage();
                         boss.bullets.splice(i, 1);
                     } else if (b.y > canvas.height) {
                         boss.bullets.splice(i, 1);
@@ -2612,8 +2902,8 @@
 
                 let distBoss = Math.hypot(sonic.x - boss.x, sonic.y - boss.y);
                 if (distBoss < sonic.radius + 30) {
-                    if (sonic.vy < 0 || sonic.isRolling || sonic.isSpinDashing) {
-                        boss.hp--;
+                    if (superSonicActive || sonic.vy < 0 || sonic.isRolling || sonic.isSpinDashing) {
+                        boss.hp -= superSonicActive ? 2 : 1; // Super Sonic acerta com o dobro de força
                         sonic.vy = -8;
                         sonic.vx = -sonic.facing * 4;
                         sfx.bossHit();
@@ -2641,6 +2931,7 @@
         }
 
         function takeDamage() {
+            if (superSonicActive) return; // Super Sonic nunca leva dano
             if (invulnerableTimer > 0) return; // ignora dano durante invencibilidade
             invulnerableTimer = 90;
 
@@ -2702,6 +2993,7 @@
             lastRunCoinsEarned = earned;
             gameState = finalState;
             stopMusic();
+            deactivateSuperSonic();
             if (finalState === "won") { sfx.win(); } else { sfx.gameOver(); }
             savePlayerData(); // Supabase: persiste moedas, melhor pontuação e progresso ao fim da partida
         }
@@ -2854,6 +3146,9 @@
                 }
             });
 
+            // Chaos Emerald da fase (se houver)
+            drawEmeralds();
+
             // Inimigos
             const enemySpriteMap = { shooter: sprites.enemyShooter, melee: sprites.enemyMelee, flyer: sprites.enemyFlyer };
             const enemyFallbackColor = { shooter: "#e53935", melee: "#2e7d32", flyer: "#ff9800" };
@@ -2939,26 +3234,46 @@
             // desaparece rapidamente entre o ponto de origem e o de chegada)
             drawTeleportEffects(teleportEffects);
 
-            // Personagem jogável (pisca durante invencibilidade)
-            const blinking = invulnerableTimer > 0 && Math.floor(invulnerableTimer / 5) % 2 === 0;
+            // Partículas douradas do Super Sonic (atrás do personagem)
+            if (superSonicActive) drawSuperSonicSparkles();
+
+            // Personagem jogável (pisca durante invencibilidade — nunca pisca se Super Sonic, pois é invencível por definição)
+            const blinking = !superSonicActive && invulnerableTimer > 0 && Math.floor(invulnerableTimer / 5) % 2 === 0;
             const playerChar = CHARACTERS[selectedCharacter];
             if (!blinking) {
                 ctx.save();
                 ctx.translate(sonic.x, sonic.y);
 
+                // Auréola dourada pulsante ao redor do Super Sonic
+                if (superSonicActive) {
+                    const glowPulse = 0.35 + Math.sin(Date.now() / 100) * 0.15;
+                    ctx.save();
+                    ctx.globalAlpha = glowPulse;
+                    ctx.fillStyle = "#ffd700";
+                    ctx.beginPath();
+                    ctx.arc(0, -4, 22, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.restore();
+                }
+
                 const rolling = sonic.isRolling || sonic.isSpinDashing;
-                const rollSprite = sprites[playerChar.rollSpriteKey];
+                // Enquanto Super Sonic estiver ativo (e o personagem for o Sonic),
+                // usa o sprite dourado enviado pelo usuário no lugar do sonicIdle/sonicRoll normal.
+                const useSuperSprite = superSonicActive && selectedCharacter === "sonic" && sprites.superSonicIdle;
+                const rollSprite = useSuperSprite ? (sprites.superSonicRoll || sprites.superSonicIdle) : sprites[playerChar.rollSpriteKey];
                 // Para o Tails: usa o sprite de VOO enquanto ele está voando, e o
                 // sprite de ANDANDO enquanto está no chão/pulando sem voar.
                 // Para os demais personagens, spriteKey continua sendo o único sprite "parado".
                 let idleSprite;
-                if (playerChar.canFly && playerChar.walkSpriteKey && sprites[playerChar.walkSpriteKey] && !sonic.isFlying) {
+                if (useSuperSprite) {
+                    idleSprite = sprites.superSonicIdle;
+                } else if (playerChar.canFly && playerChar.walkSpriteKey && sprites[playerChar.walkSpriteKey] && !sonic.isFlying) {
                     idleSprite = sprites[playerChar.walkSpriteKey];
                 } else {
                     idleSprite = sprites[playerChar.spriteKey];
                 }
                 // Usa o sprite específico de "rolando" se existir; senão cai no sprite parado girando
-                const usingDedicatedRollSprite = rolling && !!rollSprite;
+                const usingDedicatedRollSprite = rolling && !!rollSprite && rollSprite !== idleSprite;
                 const spriteToUse = usingDedicatedRollSprite ? rollSprite : idleSprite;
 
                 if (spriteToUse) {
@@ -2971,13 +3286,13 @@
                     ctx.imageSmoothingEnabled = true;
                 } else if (rolling) {
                     ctx.rotate(sonic.angle);
-                    ctx.fillStyle = playerChar.color;
+                    ctx.fillStyle = superSonicActive ? "#ffd700" : playerChar.color;
                     ctx.beginPath();
                     ctx.arc(0, 0, sonic.radius, 0, Math.PI * 2);
                     ctx.fill();
                 } else {
                     ctx.scale(sonic.facing, 1);
-                    ctx.fillStyle = playerChar.color;
+                    ctx.fillStyle = superSonicActive ? "#ffd700" : playerChar.color;
                     ctx.beginPath();
                     ctx.arc(0, -4, 12, 0, Math.PI * 2);
                     ctx.fill();
@@ -2985,7 +3300,7 @@
                     ctx.beginPath();
                     ctx.arc(4, -2, 6, 0, Math.PI * 2);
                     ctx.fill();
-                    ctx.fillStyle = "#ff0000";
+                    ctx.fillStyle = superSonicActive ? "#c62828" : "#ff0000";
                     ctx.fillRect(-6, 8, 16, 8);
                 }
                 ctx.restore();
@@ -3010,9 +3325,20 @@
                     ctx.fillStyle = fuelPct > 0.3 ? "#00e5ff" : "#ff5252";
                     ctx.fillRect(sonic.x - barW / 2, sonic.y - 34, barW * fuelPct, barH);
                 }
+
+                // Etiqueta "SUPER SONIC" flutuando acima do personagem
+                if (superSonicActive) {
+                    ctx.textAlign = "center";
+                    ctx.fillStyle = "#ffd700";
+                    ctx.font = 'bold 11px "Courier New"';
+                    ctx.fillText("SUPER SONIC", sonic.x, sonic.y - 36);
+                }
             }
 
             ctx.restore();
+
+            // HUD de Chaos Emeralds (canto superior direito, abaixo do "[P] Pausar")
+            drawEmeraldHud();
 
             if (gameState === "paused") {
                 renderPauseOverlay();
@@ -3052,6 +3378,53 @@
                 ctx.fillText("Pressione ESPAÇO ou ENTER para jogar novamente", canvas.width / 2, canvas.height / 2 + 38);
                 drawShopButton();
             }
+        }
+
+        // Desenha o contador de Chaos Emeralds no HUD, e um aviso piscando quando
+        // as 7 já foram coletadas mas o jogador ainda não se transformou.
+        function drawEmeraldHud() {
+            if (gameState !== "playing" && gameState !== "paused") return;
+
+            const hudX = canvas.width - 150;
+            const hudY = 56;
+            ctx.save();
+            ctx.textAlign = "left";
+            ctx.font = 'bold 11px "Courier New"';
+
+            for (let i = 0; i < TOTAL_CHAOS_EMERALDS; i++) {
+                const filled = i < chaosEmeraldsCollected;
+                const ex = hudX + i * 16;
+                ctx.fillStyle = filled ? EMERALD_COLORS[i] : "rgba(255,255,255,0.15)";
+                ctx.beginPath();
+                ctx.moveTo(ex, hudY - 6);
+                ctx.lineTo(ex + 5, hudY - 2);
+                ctx.lineTo(ex + 3, hudY + 6);
+                ctx.lineTo(ex - 3, hudY + 6);
+                ctx.lineTo(ex - 5, hudY - 2);
+                ctx.closePath();
+                ctx.fill();
+                if (filled) {
+                    ctx.strokeStyle = "rgba(255,255,255,0.8)";
+                    ctx.lineWidth = 1;
+                    ctx.stroke();
+                }
+            }
+
+            if (canTransformToSuperSonic()) {
+                const pulse = 0.6 + Math.sin(Date.now() / 150) * 0.4;
+                ctx.globalAlpha = pulse;
+                ctx.fillStyle = "#ffd700";
+                ctx.font = 'bold 12px "Courier New"';
+                ctx.textAlign = "right";
+                ctx.fillText("[E] SUPER SONIC!", canvas.width - 20, hudY + 22);
+            } else if (chaosEmeraldsCollected >= TOTAL_CHAOS_EMERALDS && selectedCharacter === "sonic" && !superSonicActive) {
+                ctx.fillStyle = "#ff5252";
+                ctx.font = '10px "Courier New"';
+                ctx.textAlign = "right";
+                ctx.fillText("Precisa de anéis p/ [E]", canvas.width - 20, hudY + 20);
+            }
+
+            ctx.restore();
         }
 
         // Botão "LOJA [L]" desenhado nas telas de menu / fim de jogo
@@ -3232,6 +3605,11 @@
             ctx.fillStyle = "#aaa";
             ctx.font = '13px "Courier New"';
             ctx.fillText("[A/D ou SETAS] Trocar · [ESPAÇO/ENTER] Confirmar · Clique no personagem", canvas.width / 2, cardY + cardHeight + 45);
+
+            // Dica sobre o Super Sonic, exibida só embaixo do cartão do Sonic
+            ctx.fillStyle = "#ffd700";
+            ctx.font = '11px "Courier New"';
+            ctx.fillText("Junte as 7 Chaos Emeralds e pressione [E] para virar SUPER SONIC (imune a dano)", canvas.width / 2, cardY + cardHeight + 65);
         }
 
         // Ícones simples desenhados para cada item da loja
@@ -4980,6 +5358,29 @@
                 e.preventDefault();
                 if (gameState === "playing" || gameState === "paused") togglePause();
             }, { passive: false });
+
+            // Botão flutuante "TRANSFORMAR" — só aparece quando o jogador pode
+            // virar Super Sonic (7 esmeraldas + anéis + jogando com o Sonic).
+            const transformBtn = document.createElement('div');
+            transformBtn.id = 'touch-transform';
+            transformBtn.textContent = '⭐';
+            transformBtn.style.cssText = `
+                position: absolute; left: 4%; top: 6%; width: 54px; height: 54px;
+                border-radius: 50%; background: rgba(255,215,0,0.35);
+                border: 2px solid rgba(255,215,0,0.9); color:#fff; font-size: 24px;
+                display: none; align-items: center; justify-content: center;
+                pointer-events: auto; z-index: 16; -webkit-tap-highlight-color: transparent;
+            `;
+            document.getElementById('touch-controls').appendChild(transformBtn);
+            transformBtn.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                activateSuperSonic();
+            }, { passive: false });
+
+            // Atualiza a visibilidade do botão a cada frame junto do loop principal
+            setInterval(() => {
+                transformBtn.style.display = canTransformToSuperSonic() ? "flex" : "none";
+            }, 200);
         }
 
         window.addEventListener('DOMContentLoaded', initTouchControls);
